@@ -209,11 +209,7 @@ public void OnTakeDamage(char[] output, int caller, int activator, float delay)
 public void OnMapStart()
 {
     LoadAllowedMaps();
-
-    MatchOnMapStart();
-    SkinsOnMapStart();
-    StatsOnMapStart();
-    TrainingOnMapStart();
+    currentMapAllowed = IsCurrentMapAllowed();
 
     if (currentMapAllowed)
     {
@@ -226,6 +222,11 @@ public void OnMapStart()
     AddDirToDownloads("models/player/soccermo");
     AddDirToDownloads("materials/models/soccer_mod");
     AddDirToDownloads("models/soccer_mod");
+
+    MatchOnMapStart();
+    SkinsOnMapStart();
+    StatsOnMapStart();
+    TrainingOnMapStart();
 }
 
 public void OnClientPutInServer(int client)
@@ -661,15 +662,17 @@ public void PrintEntityOutput(int caller, int activator, char[] output)
 {
     if (debuggingEnabled)
     {
-        char callerClassname[64], activatorClassname[64];
-        char callerName[64], activatorName[64];
-
+        char callerClassname[64];
         GetEntityClassname(caller, callerClassname, sizeof(callerClassname));
+
+        char activatorClassname[64];
         GetEntityClassname(activator, activatorClassname, sizeof(activatorClassname));
 
+        char callerName[64];
         if (StrEqual(callerClassname, "player")) GetClientName(caller, callerName, sizeof(callerName));
         else GetEntPropString(caller, Prop_Data, "m_iName", callerName, sizeof(callerName));
 
+        char activatorName[64];
         if (StrEqual(activatorClassname, "player")) GetClientName(activator, activatorName, sizeof(activatorName));
         else GetEntPropString(activator, Prop_Data, "m_iName", activatorName, sizeof(activatorName));
 
@@ -680,10 +683,10 @@ public void PrintEntityOutput(int caller, int activator, char[] output)
 // ************************************************************************************************************
 // ************************************************** TIMERS **************************************************
 // ************************************************************************************************************
-public Action DelayedServerCommand(Handle timer, Handle pack)
+public Action DelayedServerCommand(Handle timer, DataPack pack)
 {
-    ResetPack(pack);
+    pack.Reset();
     char command[64];
-    ReadPackString(pack, command, sizeof(command));
+    pack.ReadString(command, sizeof(command));
     ServerCommand(command);
 }
