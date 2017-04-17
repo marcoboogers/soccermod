@@ -63,8 +63,9 @@ public void TrainingCannonSet(int client, char type[32], float number, float min
 // ************************************************************************************************************
 public void TrainingOnMapStart()
 {
-    trainingGoalsEnabled = true;
-    trainingCannonBallIndex = -1;
+    trainingCannonBallIndex     = -1;
+    trainingGoalsEnabled        = true;
+
     KillTrainingCannonTimer();
 }
 
@@ -121,84 +122,17 @@ public int TrainingMenuHandler(Menu menu, MenuAction action, int client, int cho
 
             if (StrEqual(menuItem, "disable_goals"))
             {
-                if (trainingGoalsEnabled)
-                {
-                    trainingGoalsEnabled = false;
-
-                    int index;
-                    while ((index = FindEntityByClassname(index, "trigger_once")) != INVALID_ENT_REFERENCE) AcceptEntityInput(index, "Kill");
-
-                    for (int player = 1; player <= MaxClients; player++)
-                    {
-                        if (IsClientInGame(player) && IsClientConnected(player)) PrintToChat(player, "[Soccer Mod]\x04 %t", "$player has disabled the goals", client);
-                    }
-
-                    LogMessage("%N <%s> has disabled the goals", client, steamid);
-                }
-                else PrintToChat(client, "[Soccer Mod]\x04 %t", "Goals are already disabled");
-
+                TrainingDisableGoals(client);
                 OpenTrainingMenu(client);
             }
             else if (StrEqual(menuItem, "enable_goals"))
             {
-                if (!trainingGoalsEnabled)
-                {
-                    trainingGoalsEnabled = true;
-                    ServerCommand("mp_restartgame 1");
-
-                    for (int player = 1; player <= MaxClients; player++)
-                    {
-                        if (IsClientInGame(player) && IsClientConnected(player)) PrintToChat(player, "[Soccer Mod]\x04 %t", "$player has enabled the goals", client);
-                    }
-
-                    LogMessage("%N <%s> has enabled the goals", client, steamid);
-                }
-                else PrintToChat(client, "[Soccer Mod]\x04 %t", "Goals are already enabled");
-
+                TrainingEnableGoals(client);
                 OpenTrainingMenu(client);
             }
             else if (StrEqual(menuItem, "spawn"))
             {
-                if (FileExists(trainingModelBall, true))
-                {
-                    char entityName[32];
-                    Format(entityName, sizeof(entityName), "soccer_mod_training_ball_%i", client);
-
-                    int index;
-                    bool ballSpawned = false;
-
-                    while ((index = FindEntityByClassname(index, "prop_physics")) != INVALID_ENT_REFERENCE)
-                    {
-                        char entPropString[32];
-                        GetEntPropString(index, Prop_Data, "m_iName", entPropString, sizeof(entPropString));
-
-                        if (StrEqual(entPropString, entityName))
-                        {
-                            ballSpawned = true;
-                            AcceptEntityInput(index, "Kill");
-                        }
-                    }
-
-                    if (!ballSpawned)
-                    {
-                        index = CreateEntityByName("prop_physics");
-                        if (index)
-                        {
-                            if (!IsModelPrecached(trainingModelBall)) PrecacheModel(trainingModelBall);
-
-                            DispatchKeyValue(index, "targetname", entityName);
-                            DispatchKeyValue(index, "model", trainingModelBall);
-
-                            float aimPosition[3];
-                            GetAimOrigin(client, aimPosition);
-                            DispatchKeyValueVector(index, "origin", aimPosition);
-
-                            DispatchSpawn(index);
-                        }
-                    }
-                }
-                else PrintToChat(client, "[Soccer Mod]\x04 %t", "Can not spawn model $model", trainingModelBall);
-
+                TrainingSpawnBall(client);
                 OpenTrainingMenu(client);
             }
             else if (StrEqual(menuItem, "cannon")) OpenTrainingCannonMenu(client);
@@ -345,7 +279,7 @@ public int TrainingCannonMenuHandler(Menu menu, MenuAction action, int client, i
                             {
                                 trainingCannonBallIndex = numbers[0];
                                 KillTrainingCannonTimer();
-                                trainingCannonTimer = CreateTimer(0.0, trainingCannonShoot);
+                                trainingCannonTimer = CreateTimer(0.0, TrainingCannonShoot);
 
                                 for (int player = 1; player <= MaxClients; player++)
                                 {
@@ -359,7 +293,7 @@ public int TrainingCannonMenuHandler(Menu menu, MenuAction action, int client, i
                         else
                         {
                             KillTrainingCannonTimer();
-                            trainingCannonTimer = CreateTimer(0.0, trainingCannonShoot);
+                            trainingCannonTimer = CreateTimer(0.0, TrainingCannonShoot);
 
                             for (int player = 1; player <= MaxClients; player++)
                             {
@@ -425,18 +359,18 @@ public int TrainingChooseBallMenuHandler(Menu menu, MenuAction action, int clien
         menu.GetItem(choice, menuItem, sizeof(menuItem));
         trainingCannonBallIndex = StringToInt(menuItem);
 
-        char steamid[32];
-        GetClientAuthId(client, AuthId_Engine, steamid, sizeof(steamid));
-
         KillTrainingCannonTimer();
-        trainingCannonTimer = CreateTimer(0.0, trainingCannonShoot);
+        trainingCannonTimer = CreateTimer(0.0, TrainingCannonShoot);
 
         for (int player = 1; player <= MaxClients; player++)
         {
             if (IsClientInGame(player) && IsClientConnected(player)) PrintToChat(player, "[Soccer Mod]\x04 %t", "$player has turned the cannon on", client);
         }
 
+        char steamid[32];
+        GetClientAuthId(client, AuthId_Engine, steamid, sizeof(steamid));
         LogMessage("%N <%s> has turned the cannon on", client, steamid);
+
         OpenTrainingCannonMenu(client);
     }
     else if (action == MenuAction_Cancel && choice == -6)   OpenTrainingCannonMenu(client);
@@ -502,7 +436,7 @@ public int TrainingCannonSettingsMenuHandler(Menu menu, MenuAction action, int c
 // ************************************************************************************************************
 // ************************************************** TIMERS **************************************************
 // ************************************************************************************************************
-public Action trainingCannonShoot(Handle timer)
+public Action TrainingCannonShoot(Handle timer)
 {
     if (IsValidEntity(trainingCannonBallIndex))
     {
@@ -516,7 +450,7 @@ public Action trainingCannonShoot(Handle timer)
         ScaleVector(vec, trainingCannonPower);
         TeleportEntity(trainingCannonBallIndex, trainingCannonPosition, NULL_VECTOR, vec);
 
-        trainingCannonTimer = CreateTimer(trainingCannonFireRate, trainingCannonShoot);
+        trainingCannonTimer = CreateTimer(trainingCannonFireRate, TrainingCannonShoot);
     }
     else
     {
@@ -540,4 +474,87 @@ public void KillTrainingCannonTimer()
         KillTimer(trainingCannonTimer);
         trainingCannonTimer = null;
     }
+}
+
+public void TrainingDisableGoals(int client)
+{
+    if (trainingGoalsEnabled)
+    {
+        trainingGoalsEnabled = false;
+
+        int index;
+        while ((index = FindEntityByClassname(index, "trigger_once")) != INVALID_ENT_REFERENCE) AcceptEntityInput(index, "Kill");
+
+        for (int player = 1; player <= MaxClients; player++)
+        {
+            if (IsClientInGame(player) && IsClientConnected(player)) PrintToChat(player, "[Soccer Mod]\x04 %t", "$player has disabled the goals", client);
+        }
+
+        char steamid[32];
+        GetClientAuthId(client, AuthId_Engine, steamid, sizeof(steamid));
+        LogMessage("%N <%s> has disabled the goals", client, steamid);
+    }
+    else PrintToChat(client, "[Soccer Mod]\x04 %t", "Goals are already disabled");
+}
+
+public void TrainingEnableGoals(int client)
+{
+    if (!trainingGoalsEnabled)
+    {
+        trainingGoalsEnabled = true;
+        ServerCommand("mp_restartgame 1");
+
+        for (int player = 1; player <= MaxClients; player++)
+        {
+            if (IsClientInGame(player) && IsClientConnected(player)) PrintToChat(player, "[Soccer Mod]\x04 %t", "$player has enabled the goals", client);
+        }
+
+        char steamid[32];
+        GetClientAuthId(client, AuthId_Engine, steamid, sizeof(steamid));
+        LogMessage("%N <%s> has enabled the goals", client, steamid);
+    }
+    else PrintToChat(client, "[Soccer Mod]\x04 %t", "Goals are already enabled");
+}
+
+public void TrainingSpawnBall(int client)
+{
+    if (FileExists(trainingModelBall, true))
+    {
+        char entityName[32];
+        Format(entityName, sizeof(entityName), "soccer_mod_training_ball_%i", client);
+
+        int index;
+        bool ballSpawned = false;
+
+        while ((index = FindEntityByClassname(index, "prop_physics")) != INVALID_ENT_REFERENCE)
+        {
+            char entPropString[32];
+            GetEntPropString(index, Prop_Data, "m_iName", entPropString, sizeof(entPropString));
+
+            if (StrEqual(entPropString, entityName))
+            {
+                ballSpawned = true;
+                AcceptEntityInput(index, "Kill");
+            }
+        }
+
+        if (!ballSpawned)
+        {
+            index = CreateEntityByName("prop_physics");
+            if (index)
+            {
+                if (!IsModelPrecached(trainingModelBall)) PrecacheModel(trainingModelBall);
+
+                DispatchKeyValue(index, "targetname", entityName);
+                DispatchKeyValue(index, "model", trainingModelBall);
+
+                float aimPosition[3];
+                GetAimOrigin(client, aimPosition);
+                DispatchKeyValueVector(index, "origin", aimPosition);
+
+                DispatchSpawn(index);
+            }
+        }
+    }
+    else PrintToChat(client, "[Soccer Mod]\x04 %t", "Cant spawn model $model", trainingModelBall);
 }

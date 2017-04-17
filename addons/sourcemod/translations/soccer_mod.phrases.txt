@@ -989,7 +989,7 @@
 	}
 
 	// ************************************************** TRAINING **************************************************
-	"Can not spawn model $model"
+	"Cant spawn model $model"
 	{
 		"#format"	"{1:s}"
 		"en"		"Can't spawn model {1}"

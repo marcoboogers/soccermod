@@ -253,12 +253,10 @@ public void StatsOnTakeDamage(int ball, int client)
     KvSetString(statsKeygroupMatch, "name", name);
 
     int keyValue = KvGetNum(statsKeygroupRound, "hits", 0);
-    keyValue++;
-    KvSetNum(statsKeygroupRound, "hits", keyValue);
+    KvSetNum(statsKeygroupRound, "hits", keyValue + 1);
 
     keyValue = KvGetNum(statsKeygroupMatch, "hits", 0);
-    keyValue++;
-    KvSetNum(statsKeygroupMatch, "hits", keyValue);
+    KvSetNum(statsKeygroupMatch, "hits", keyValue + 1);
 
     if (StrEqual(game, "csgo")) SetEntProp(client, Prop_Data, "m_iDeaths", keyValue);
 
@@ -286,6 +284,9 @@ public void StatsOnTakeDamage(int ball, int client)
 
     if (StrEqual(game, "csgo")) CS_SetClientContributionScore(client, keyValue);
     else SetEntProp(client, Prop_Data, "m_iDeaths", keyValue);
+
+    KvRewind(statsKeygroupRound);
+    KvRewind(statsKeygroupMatch);
 
     if (pass || ball_loss || possession)
     {
@@ -339,6 +340,9 @@ public void StatsOnTakeDamage(int ball, int client)
             else SetEntProp(statsAssisterClientid, Prop_Data, "m_iDeaths", keyValue);
         }
     }
+
+    KvRewind(statsKeygroupRound);
+    KvRewind(statsKeygroupMatch);
 
     if (save)
     {

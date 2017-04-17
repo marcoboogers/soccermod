@@ -20,7 +20,7 @@ public void SprintOnClientPutInServer(int client)
 
 public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon)
 {
-    if (sprintEnabled && IsCurrentMapAllowed())
+    if (sprintEnabled && currentMapAllowed)
     {
         if (usingSprintCommand[client])
         {

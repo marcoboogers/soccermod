@@ -93,14 +93,22 @@ public Action ServerCommands(int args)
     {
         int entity = GetEntityIndexByName(cmdArg1, "prop_physics");
 
-        if (StrEqual(serverCommand, "soccer_mod_prop_value")) DispatchKeyValue(entity, cmdArg2, cmdArg3);
-        else if (StrEqual(serverCommand, "soccer_mod_prop_value_float")) DispatchKeyValueFloat(entity, cmdArg2, StringToFloat(cmdArg3));
+        if (entity != -1)
+        {
+            if (StrEqual(serverCommand, "soccer_mod_prop_value")) DispatchKeyValue(entity, cmdArg2, cmdArg3);
+            else if (StrEqual(serverCommand, "soccer_mod_prop_value_float")) DispatchKeyValueFloat(entity, cmdArg2, StringToFloat(cmdArg3));
 
-        //if (!IsModelPrecached(cmdArg3)) PrecacheModel(cmdArg3);
-        //SetEntityModel(entity, cmdArg3);
+            //if (!IsModelPrecached(cmdArg3)) PrecacheModel(cmdArg3);
+            //SetEntityModel(entity, cmdArg3);
 
-        PrintToServer("%s Prop value %s of entity %s set to %s", PREFIX, cmdArg2, cmdArg1, cmdArg3);
-        PrintToChatAll("%s Prop value %s of entity %s set to %s", PREFIX, cmdArg2, cmdArg1, cmdArg3);
+            PrintToServer("%s Prop value %s of entity %s set to %s", PREFIX, cmdArg2, cmdArg1, cmdArg3);
+            PrintToChatAll("%s Prop value %s of entity %s set to %s", PREFIX, cmdArg2, cmdArg1, cmdArg3);
+        }
+        else
+        {
+            PrintToServer("%s No entity found with name %s", PREFIX, cmdArg1);
+            PrintToChatAll("%s No entity found with name %s", PREFIX, cmdArg1);
+        }
     }
     else if (StrEqual(serverCommand, "soccer_mod_pushscale"))
     {
@@ -122,32 +130,6 @@ public Action ServerCommands(int args)
     }
 
     return Plugin_Handled;
-}
-
-public void AddDirToDownloads(char path[PLATFORM_MAX_PATH])
-{
-    Handle dir = OpenDirectory(path);
-
-    if (dir != INVALID_HANDLE)
-    {
-        char filename[PLATFORM_MAX_PATH];
-        FileType type;
-        char full[PLATFORM_MAX_PATH];
-
-        while (ReadDirEntry(dir, filename, sizeof(filename), type))
-        {
-            if (!StrEqual(filename, ".") && !StrEqual(filename, ".."))
-            {
-                Format(full, sizeof(full), "%s/%s", path, filename);
-
-                if (type == FileType_File) AddFileToDownloadsTable(full);
-                else if (type == FileType_Directory) AddDirToDownloads(full);
-            }
-        }
-
-        dir.Close();
-    }
-    else PrintToServer("%s Can't add folder %s to the downloads", PREFIX, path);
 }
 
 // **************************************************************************************************************

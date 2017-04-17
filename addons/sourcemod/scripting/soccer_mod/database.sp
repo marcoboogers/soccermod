@@ -123,7 +123,7 @@ public void DatabaseCheckPlayer(int client)
             char lastConnected[32];
             Format(lastConnected, sizeof(lastConnected), "%i", GetTime());
 
-            DataPack pack;
+            DataPack pack = new DataPack();
             pack.WriteString(escapedName);
             pack.WriteString(steamid);
             pack.WriteString(ip);

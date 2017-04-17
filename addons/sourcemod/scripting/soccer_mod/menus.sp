@@ -451,7 +451,7 @@ public void OpenMapsChangeMenu(int client)
             length = strlen(map);
             if (map[length - 1] == '\n') map[--length] = '\0';
 
-            if (map[0] != '/' && map[1] != '/' && map[0]) menu.AddItem(map, map);
+            if (map[0] != '/' && map[1] != '/' && map[0] && IsMapValid(map)) menu.AddItem(map, map);
         }
 
         file.Close();
@@ -519,7 +519,7 @@ public void OpenMapsRemoveMenu(int client)
             length = strlen(map);
             if (map[length - 1] == '\n') map[--length] = '\0';
 
-            if (map[0] != '/' && map[1] != '/' && map[0] && IsMapValid(map)) menu.AddItem(map, map);
+            if (map[0] != '/' && map[1] != '/' && map[0]) menu.AddItem(map, map);
         }
 
         file.Close();
@@ -545,6 +545,7 @@ public int MapsRemoveMenuHandler(Menu menu, MenuAction action, int client, int c
             int index = FindStringInArray(allowedMaps, map);
             RemoveFromArray(allowedMaps, index);
             SaveAllowedMaps();
+            LoadAllowedMaps();
 
             PrintToChat(client, "[Soccer Mod]\x04 %t", "$map removed from the allowed maps list", map);
         }

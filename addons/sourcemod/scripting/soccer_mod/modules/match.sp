@@ -184,112 +184,25 @@ public int MatchMenuHandler(Menu menu, MenuAction action, int client, int choice
 
         if (StrEqual(menuItem, "start"))
         {
-            if (!matchStarted)
-            {
-                ServerCommand("mp_restartgame 5");
-
-                FreezeAll();
-                MatchReset();
-                LoadConfigMatch();
-                ResetMatchStats();
-
-                matchStarted = true;
-                matchKickOffTaken = true;
-                matchToss = GetRandomInt(2, 3);
-
-                for (int player = 1; player <= MaxClients; player++)
-                {
-                    if (IsClientInGame(player) && IsClientConnected(player)) PrintToChat(player, "[Soccer Mod]\x04 %t", "$player has started a match", client);
-                }
-
-                char steamid[32];
-                GetClientAuthId(client, AuthId_Engine, steamid, sizeof(steamid));
-                LogMessage("%N <%s> has started a match", client, steamid);
-            }
-            else PrintToChat(client, "[Soccer Mod]\x04 %t", "Match already started");
-
+            MatchStart(client);
             OpenMatchMenu(client);
         }
         else if (StrEqual(menuItem, "pause"))
         {
-            if (matchStarted)
-            {
-                if (!matchPaused)
-                {
-                    matchPaused = true;
-
-                    if (!matchPeriodBreak)
-                    {
-                        FreezeAll();
-                        KillMatchTimer();
-                        matchTimer = CreateTimer(0.0, MatchDisplayTimerMessage);
-                    }
-
-                    for (int player = 1; player <= MaxClients; player++)
-                    {
-                        if (IsClientInGame(player) && IsClientConnected(player)) PrintToChat(player, "[Soccer Mod]\x04 %t", "$player has paused the match", client);
-                    }
-
-                    char steamid[32];
-                    GetClientAuthId(client, AuthId_Engine, steamid, sizeof(steamid));
-                    LogMessage("%N <%s> has paused the match", client, steamid);
-                }
-                else PrintToChat(client, "[Soccer Mod]\x04 %t", "Match already paused");
-            }
-            else PrintToChat(client, "[Soccer Mod]\x04 %t", "No match started");
-
+            MatchPause(client);
             OpenMatchMenu(client);
         }
         else if (StrEqual(menuItem, "unpause"))
         {
-            if (matchStarted)
-            {
-                if (matchPaused)
-                {
-                    matchPaused = false;
-
-                    if (!matchPeriodBreak)
-                    {
-                        KillMatchTimer();
-                        matchTimer = CreateTimer(0.0, MatchUnpauseCountdown, 5);
-                    }
-
-                    for (int player = 1; player <= MaxClients; player++)
-                    {
-                        if (IsClientInGame(player) && IsClientConnected(player)) PrintToChat(player, "[Soccer Mod]\x04 %t", "$player has unpaused the match", client);
-                    }
-
-                    char steamid[32];
-                    GetClientAuthId(client, AuthId_Engine, steamid, sizeof(steamid));
-                    LogMessage("%N <%s> has unpaused the match", client, steamid);
-                }
-                else PrintToChat(client, "[Soccer Mod]\x04 %t", "Match already unpaused");
-            }
-            else PrintToChat(client, "[Soccer Mod]\x04 %t", "No match started");
-
+            MatchUnpause(client);
             OpenMatchMenu(client);
         }
         else if (StrEqual(menuItem, "stop"))
         {
-            if (matchStarted)
-            {
-                MatchReset();
-                UnfreezeAll();
-
-                for (int player = 1; player <= MaxClients; player++)
-                {
-                    if (IsClientInGame(player) && IsClientConnected(player)) PrintToChat(player, "[Soccer Mod]\x04 %t", "$player has stopped the match", client);
-                }
-
-                char steamid[32];
-                GetClientAuthId(client, AuthId_Engine, steamid, sizeof(steamid));
-                LogMessage("%N <%s> has stopped the match", client, steamid);
-            }
-            else PrintToChat(client, "[Soccer Mod]\x04 %t", "No match started");
-
+            MatchStop(client);
             OpenMatchMenu(client);
         }
-        else if (StrEqual(menuItem, "score"))           OpenMatchScoreMenu(client);
+        else if (StrEqual(menuItem, "score"))               OpenMatchScoreMenu(client);
     }
     else if (action == MenuAction_Cancel && choice == -6)   OpenAdminMenu(client);
     else if (action == MenuAction_End)                      menu.Close();
@@ -721,6 +634,109 @@ public void MatchReset()
 
     matchScoreT = 0;
     matchScoreCT = 0;
+}
+
+public void MatchStart(int client)
+{
+    if (!matchStarted)
+    {
+        ServerCommand("mp_restartgame 5");
+
+        FreezeAll();
+        MatchReset();
+        LoadConfigMatch();
+        ResetMatchStats();
+
+        matchStarted = true;
+        matchKickOffTaken = true;
+        matchToss = GetRandomInt(2, 3);
+
+        for (int player = 1; player <= MaxClients; player++)
+        {
+            if (IsClientInGame(player) && IsClientConnected(player)) PrintToChat(player, "[Soccer Mod]\x04 %t", "$player has started a match", client);
+        }
+
+        char steamid[32];
+        GetClientAuthId(client, AuthId_Engine, steamid, sizeof(steamid));
+        LogMessage("%N <%s> has started a match", client, steamid);
+    }
+    else PrintToChat(client, "[Soccer Mod]\x04 %t", "Match already started");
+}
+
+public void MatchPause(int client)
+{
+    if (matchStarted)
+    {
+        if (!matchPaused)
+        {
+            matchPaused = true;
+
+            if (!matchPeriodBreak)
+            {
+                FreezeAll();
+                KillMatchTimer();
+                matchTimer = CreateTimer(0.0, MatchDisplayTimerMessage);
+            }
+
+            for (int player = 1; player <= MaxClients; player++)
+            {
+                if (IsClientInGame(player) && IsClientConnected(player)) PrintToChat(player, "[Soccer Mod]\x04 %t", "$player has paused the match", client);
+            }
+
+            char steamid[32];
+            GetClientAuthId(client, AuthId_Engine, steamid, sizeof(steamid));
+            LogMessage("%N <%s> has paused the match", client, steamid);
+        }
+        else PrintToChat(client, "[Soccer Mod]\x04 %t", "Match already paused");
+    }
+    else PrintToChat(client, "[Soccer Mod]\x04 %t", "No match started");
+}
+
+public void MatchUnpause(int client)
+{
+    if (matchStarted)
+    {
+        if (matchPaused)
+        {
+            matchPaused = false;
+
+            if (!matchPeriodBreak)
+            {
+                KillMatchTimer();
+                matchTimer = CreateTimer(0.0, MatchUnpauseCountdown, 5);
+            }
+
+            for (int player = 1; player <= MaxClients; player++)
+            {
+                if (IsClientInGame(player) && IsClientConnected(player)) PrintToChat(player, "[Soccer Mod]\x04 %t", "$player has unpaused the match", client);
+            }
+
+            char steamid[32];
+            GetClientAuthId(client, AuthId_Engine, steamid, sizeof(steamid));
+            LogMessage("%N <%s> has unpaused the match", client, steamid);
+        }
+        else PrintToChat(client, "[Soccer Mod]\x04 %t", "Match already unpaused");
+    }
+    else PrintToChat(client, "[Soccer Mod]\x04 %t", "No match started");
+}
+
+public void MatchStop(int client)
+{
+    if (matchStarted)
+    {
+        MatchReset();
+        UnfreezeAll();
+
+        for (int player = 1; player <= MaxClients; player++)
+        {
+            if (IsClientInGame(player) && IsClientConnected(player)) PrintToChat(player, "[Soccer Mod]\x04 %t", "$player has stopped the match", client);
+        }
+
+        char steamid[32];
+        GetClientAuthId(client, AuthId_Engine, steamid, sizeof(steamid));
+        LogMessage("%N <%s> has stopped the match", client, steamid);
+    }
+    else PrintToChat(client, "[Soccer Mod]\x04 %t", "No match started");
 }
 
 stock bool getTimeString(char[] name, int time)

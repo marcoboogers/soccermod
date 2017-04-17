@@ -41,6 +41,7 @@ char changeSetting[MAXPLAYERS + 1][32];
 
 #include "soccer_mod\fixes\join_team.sp"
 #include "soccer_mod\fixes\radio_commands.sp"
+#include "soccer_mod\fixes\remove_knives.sp"
 
 // *****************************************************************************************************************
 // ************************************************** PLUGIN INFO **************************************************
@@ -137,7 +138,7 @@ public void OnAwakened(char[] output, int caller, int activator, float delay)
 {
     if (currentMapAllowed)
     {
-        PrintEntityOutput(caller, activator, "OnAwakened");
+        PrintEntityOutput(output, caller, activator);
 
         MatchOnAwakened(caller, activator);
         StatsOnAwakened(caller, activator);
@@ -148,7 +149,7 @@ public void OnStartTouch(char[] output, int caller, int activator, float delay)
 {
     if (currentMapAllowed)
     {
-        PrintEntityOutput(caller, activator, "OnStartTouch");
+        PrintEntityOutput(output, caller, activator);
 
         char callerClassname[64];
         GetEntityClassname(caller, callerClassname, sizeof(callerClassname));
@@ -156,7 +157,7 @@ public void OnStartTouch(char[] output, int caller, int activator, float delay)
         char callerName[64];
         GetEntPropString(caller, Prop_Data, "m_iName", callerName, sizeof(callerName));
 
-        if (StrEqual(callerClassname, "trigger_once") && (StrEqual(callerName, "goal_ct") || StrEqual(callerName, "goal_t")))
+        if (StrEqual(game, "csgo") && StrEqual(callerClassname, "trigger_once") && (StrEqual(callerName, "goal_ct") || StrEqual(callerName, "goal_t")))
         {
             int gameRoundEndIndex = 0;
             bool gameRoundEndExists = false;
@@ -173,8 +174,7 @@ public void OnStartTouch(char[] output, int caller, int activator, float delay)
                 else if (StrEqual(callerName, "goal_ct")) AcceptEntityInput(roundEndIndex, "EndRound_TerroristsWin");
             }
         }
-
-        if (activator >= 1 && activator <= MaxClients && StrEqual(callerClassname, "trigger_hurt") && !goalScored)
+        else if (activator >= 1 && activator <= MaxClients && StrEqual(callerClassname, "trigger_hurt") && !goalScored)
         {
             goalScored = true;
 
@@ -192,9 +192,9 @@ public void OnTakeDamage(char[] output, int caller, int activator, float delay)
 {
     if (currentMapAllowed)
     {
-        PrintEntityOutput(caller, activator, "OnTakeDamage");
+        PrintEntityOutput(output, caller, activator);
 
-        DispatchKeyValue(caller, "physdamagescale", "-1");
+        // DispatchKeyValue(caller, "physdamagescale", "-1");
 
         if (activator >= 1 && activator <= MaxClients && !roundEnded)
         {
@@ -219,7 +219,7 @@ public void OnMapStart()
     else LoadConfigNonSoccer();
 
     AddDirToDownloads("materials/models/player/soccermod");
-    AddDirToDownloads("models/player/soccermo");
+    AddDirToDownloads("models/player/soccermod");
     AddDirToDownloads("materials/models/soccer_mod");
     AddDirToDownloads("models/soccer_mod");
 
@@ -231,6 +231,8 @@ public void OnMapStart()
 
 public void OnClientPutInServer(int client)
 {
+    changeSetting[client] = "";
+
     DatabaseCheckPlayer(client);
 
     RespawnOnClientPutInServer(client);
@@ -268,15 +270,7 @@ public Action EventPlayerSpawn(Event event, const char[] name, bool dontBroadcas
         SkinsEventPlayerSpawn(event);
         StatsEventPlayerSpawn(event);
 
-        // FIX FOR KNIVES ON THE GROUND
-        int maxEntities = GetMaxEntities();
-        char className[64];
-        for (int index = MaxClients; index < maxEntities; index++)
-        {
-            if (IsValidEntity(index) && IsValidEdict(index) && GetEdictClassname(index, className, sizeof(className)) && 
-                StrEqual(className, "weapon_knife") && GetEntPropEnt(index, Prop_Send, "m_hOwnerEntity") == -1) RemoveEdict(index);
-        }
-        // END FIX FOR KNIVES ON THE GROUND
+        RemoveKnivesEventPlayerSpawn(event);
     }
 }
 
@@ -352,33 +346,45 @@ public void LoadAllowedMaps()
 
     if (file != null)
     {
-        char linedata[128];
+        char map[128];
         int length;
 
-        while (!file.EndOfFile() && file.ReadLine(linedata, sizeof(linedata)))
+        while (!file.EndOfFile() && file.ReadLine(map, sizeof(map)))
         {
-            length = strlen(linedata);
-            if (linedata[length - 1] == '\n') linedata[--length] = '\0';
+            length = strlen(map);
+            if (map[length - 1] == '\n') map[--length] = '\0';
 
-            if (linedata[0] != '/' && linedata[1] != '/' && linedata[0]) PushArrayString(allowedMaps, linedata);
+            if (map[0] != '/' && map[1] != '/' && map[0]) PushArrayString(allowedMaps, map);
         }
 
         file.Close();
     }
-    else
+    else CreateAllowedMapsFile();
+}
+
+public void CreateAllowedMapsFile()
+{
+    File file = OpenFile(allowedMapsConfigFile, "w");
+
+    if (StrEqual(game, "csgo"))
     {
         PushArrayString(allowedMaps, "ka_xsl_stadium_b1");
-        Handle createFile = OpenFile(allowedMapsConfigFile, "w");
-        WriteFileLine(createFile, "ka_xsl_stadium_b1");
-        createFile.Close();
+        file.WriteLine("ka_xsl_stadium_b1");
     }
+    else
+    {
+        PushArrayString(allowedMaps, "ka_soccer_xsl_stadium_b1");
+        file.WriteLine("ka_soccer_xsl_stadium_b1");
+    }
+
+    file.Close();
 }
 
 public bool IsCurrentMapAllowed()
 {
-    char mapName[128];
-    GetCurrentMap(mapName, sizeof(mapName));
-    if (FindStringInArray(allowedMaps, mapName) > -1) return true;
+    char map[128];
+    GetCurrentMap(map, sizeof(map));
+    if (FindStringInArray(allowedMaps, map) > -1) return true;
     return false;
 }
 
@@ -391,9 +397,9 @@ public void SaveAllowedMaps()
     {
         while (i < GetArraySize(allowedMaps))
         {
-            char buffer[128];
-            GetArrayString(allowedMaps, i, buffer, sizeof(buffer));
-            file.WriteLine(buffer);
+            char map[128];
+            GetArrayString(allowedMaps, i, map, sizeof(map));
+            file.WriteLine(map);
             i++;
         }
 
@@ -546,6 +552,35 @@ public void SetCvarFloat(char[] cvarName, float value)
     }
 }
 
+// ***************************************************************************************************************
+// ************************************************** DOWNLOADS **************************************************
+// ***************************************************************************************************************
+public void AddDirToDownloads(char path[PLATFORM_MAX_PATH])
+{
+    Handle dir = OpenDirectory(path);
+
+    if (dir != INVALID_HANDLE)
+    {
+        char filename[PLATFORM_MAX_PATH];
+        FileType type;
+        char full[PLATFORM_MAX_PATH];
+
+        while (ReadDirEntry(dir, filename, sizeof(filename), type))
+        {
+            if (!StrEqual(filename, ".") && !StrEqual(filename, ".."))
+            {
+                Format(full, sizeof(full), "%s/%s", path, filename);
+
+                if (type == FileType_File) AddFileToDownloadsTable(full);
+                else if (type == FileType_Directory) AddDirToDownloads(full);
+            }
+        }
+
+        dir.Close();
+    }
+    else PrintToServer("%s Can't add folder %s to the downloads", PREFIX, path);
+}
+
 // ************************************************************************************************************
 // ************************************************** FREEZE **************************************************
 // ************************************************************************************************************
@@ -658,7 +693,7 @@ stock bool DrawLaser(char[] name, float startX, float startY, float startZ, floa
 // ***************************************************************************************************************
 // ************************************************** DEBUGGING **************************************************
 // ***************************************************************************************************************
-public void PrintEntityOutput(int caller, int activator, char[] output)
+public void PrintEntityOutput(char[] output, int caller, int activator)
 {
     if (debuggingEnabled)
     {
