@@ -43,8 +43,8 @@ float statsPossessionTotal      = 0.0;
 float statsPossessionCT         = 0.0;
 float statsPossessionT          = 0.0;
 
-Handle statsKeygroupMatch;
-Handle statsKeygroupRound;
+KeyValues statsKeygroupMatch;
+KeyValues statsKeygroupRound;
 
 char statsAssisterName[MAX_NAME_LENGTH]     = "";
 char statsAssisterSteamid[32]               = "";
@@ -240,23 +240,24 @@ public void StatsOnTakeDamage(int ball, int client)
         // }
     }
 
-    // Handle keygroupRound = CreateKeyValues("roundStatistics");
-    // Handle keygroupMatch = CreateKeyValues("matchStatistics");
+    // KeyValues keygroupRound = new KeyValues("roundStatistics");
+    // KeyValues keygroupMatch = new KeyValues("matchStatistics");
 
-    // FileToKeyValues(keygroupRound, statsKeygroupRound);
-    // FileToKeyValues(keygroupMatch, statsKeygroupMatch);
+    // keygroupRound.ImportFromFile(statsKeygroupRound);
+    // keygroupMatch.ImportFromFile(statsKeygroupMatch);
 
-    KvJumpToKey(statsKeygroupRound, steamid, true);
-    KvJumpToKey(statsKeygroupMatch, steamid, true);
+    statsKeygroupRound.JumpToKey(steamid, true);
+    statsKeygroupMatch.JumpToKey(steamid, true);
 
-    KvSetString(statsKeygroupRound, "name", name);
-    KvSetString(statsKeygroupMatch, "name", name);
+    statsKeygroupRound.SetString("name", name);
+    statsKeygroupMatch.SetString("name", name);
 
-    int keyValue = KvGetNum(statsKeygroupRound, "hits", 0);
-    KvSetNum(statsKeygroupRound, "hits", keyValue + 1);
+    int keyValue = statsKeygroupRound.GetNum("hits", 0);
+    statsKeygroupRound.SetNum("hits", keyValue + 1);
 
-    keyValue = KvGetNum(statsKeygroupMatch, "hits", 0);
-    KvSetNum(statsKeygroupMatch, "hits", keyValue + 1);
+    keyValue = statsKeygroupMatch.GetNum("hits", 0);
+    keyValue++;
+    statsKeygroupMatch.SetNum("hits", keyValue + 1);
 
     if (StrEqual(game, "csgo")) SetEntProp(client, Prop_Data, "m_iDeaths", keyValue);
 
@@ -265,74 +266,74 @@ public void StatsOnTakeDamage(int ball, int client)
 
     if (interception)
     {
-        keyValue = KvGetNum(statsKeygroupRound, "interceptions", 0);
-        KvSetNum(statsKeygroupRound, "interceptions", keyValue + 1);
+        keyValue = statsKeygroupRound.GetNum("interceptions", 0);
+        statsKeygroupRound.SetNum("interceptions", keyValue + 1);
 
-        keyValue = KvGetNum(statsKeygroupMatch, "interceptions", 0);
-        KvSetNum(statsKeygroupMatch, "interceptions", keyValue + 1);
+        keyValue = statsKeygroupMatch.GetNum("interceptions", 0);
+        statsKeygroupMatch.SetNum("interceptions", keyValue + 1);
 
         points += rankingPointsForInterception;
     }
 
-    keyValue = KvGetNum(statsKeygroupRound, "points", 0);
+    keyValue = statsKeygroupRound.GetNum("points", 0);
     keyValue += points;
-    KvSetNum(statsKeygroupRound, "points", keyValue);
+    statsKeygroupRound.SetNum("points", keyValue);
 
-    keyValue = KvGetNum(statsKeygroupMatch, "points", 0);
+    keyValue = statsKeygroupMatch.GetNum("points", 0);
     keyValue += points;
-    KvSetNum(statsKeygroupMatch, "points", keyValue);
+    statsKeygroupMatch.SetNum("points", keyValue);
 
     if (StrEqual(game, "csgo")) CS_SetClientContributionScore(client, keyValue);
     else SetEntProp(client, Prop_Data, "m_iDeaths", keyValue);
 
-    KvRewind(statsKeygroupRound);
-    KvRewind(statsKeygroupMatch);
+    statsKeygroupRound.Rewind();
+    statsKeygroupMatch.Rewind();
 
     if (pass || ball_loss || possession)
     {
         points = 0;
 
-        KvJumpToKey(statsKeygroupRound, statsAssisterSteamid, true);
-        KvJumpToKey(statsKeygroupMatch, statsAssisterSteamid, true);
+        statsKeygroupRound.JumpToKey(statsAssisterSteamid, true);
+        statsKeygroupMatch.JumpToKey(statsAssisterSteamid, true);
 
-        KvSetString(statsKeygroupRound, "name", statsAssisterName);
-        KvSetString(statsKeygroupMatch, "name", statsAssisterName);
+        statsKeygroupRound.SetString("name", statsAssisterName);
+        statsKeygroupMatch.SetString("name", statsAssisterName);
 
         if (pass)
         {
-            keyValue = KvGetNum(statsKeygroupRound, "passes", 0);
-            KvSetNum(statsKeygroupRound, "passes", keyValue + 1);
+            keyValue = statsKeygroupRound.GetNum("passes", 0);
+            statsKeygroupRound.SetNum("passes", keyValue + 1);
 
-            keyValue = KvGetNum(statsKeygroupMatch, "passes", 0);
-            KvSetNum(statsKeygroupMatch, "passes", keyValue + 1);
+            keyValue = statsKeygroupMatch.GetNum("passes", 0);
+            statsKeygroupMatch.SetNum("passes", keyValue + 1);
 
             points += rankingPointsForPass;
         }
 
         if (ball_loss)
         {
-            keyValue = KvGetNum(statsKeygroupRound, "ball_losses", 0);
-            KvSetNum(statsKeygroupRound, "ball_losses", keyValue + 1);
+            keyValue = statsKeygroupRound.GetNum("ball_losses", 0);
+            statsKeygroupRound.SetNum("ball_losses", keyValue + 1);
 
-            keyValue = KvGetNum(statsKeygroupMatch, "ball_losses", 0);
-            KvSetNum(statsKeygroupMatch, "ball_losses", keyValue + 1);
+            keyValue = statsKeygroupMatch.GetNum("ball_losses", 0);
+            statsKeygroupMatch.SetNum("ball_losses", keyValue + 1);
 
             points += rankingPointsForBallLoss;
         }
 
         if (possession)
         {
-            float keyValueFloat = KvGetFloat(statsKeygroupMatch, "possession", 0.0);
-            KvSetFloat(statsKeygroupMatch, "possession", keyValueFloat + possession);
+            float keyValueFloat = statsKeygroupMatch.GetFloat("possession", 0.0);
+            statsKeygroupMatch.SetFloat("possession", keyValueFloat + possession);
         }
 
-        keyValue = KvGetNum(statsKeygroupRound, "points", 0);
+        keyValue = statsKeygroupRound.GetNum("points", 0);
         keyValue += points;
-        KvSetNum(statsKeygroupRound, "points", keyValue);
+        statsKeygroupRound.SetNum("points", keyValue);
 
-        keyValue = KvGetNum(statsKeygroupMatch, "points", 0);
+        keyValue = statsKeygroupMatch.GetNum("points", 0);
         keyValue += points;
-        KvSetNum(statsKeygroupMatch, "points", keyValue);
+        statsKeygroupMatch.SetNum("points", keyValue);
 
         if (IsClientInGame(statsAssisterClientid) && IsClientConnected(statsAssisterClientid))
         {
@@ -341,30 +342,30 @@ public void StatsOnTakeDamage(int ball, int client)
         }
     }
 
-    KvRewind(statsKeygroupRound);
-    KvRewind(statsKeygroupMatch);
+    statsKeygroupRound.Rewind();
+    statsKeygroupMatch.Rewind();
 
     if (save)
     {
-        KvJumpToKey(statsKeygroupRound, saverSteamid, true);
-        KvJumpToKey(statsKeygroupMatch, saverSteamid, true);
+        statsKeygroupRound.JumpToKey(saverSteamid, true);
+        statsKeygroupMatch.JumpToKey(saverSteamid, true);
 
-        KvSetString(statsKeygroupRound, "name", saverName);
-        KvSetString(statsKeygroupMatch, "name", saverName);
+        statsKeygroupRound.SetString("name", saverName);
+        statsKeygroupMatch.SetString("name", saverName);
 
-        keyValue = KvGetNum(statsKeygroupRound, "saves", 0);
-        KvSetNum(statsKeygroupRound, "saves", keyValue + 1);
+        keyValue = statsKeygroupRound.GetNum("saves", 0);
+        statsKeygroupRound.SetNum("saves", keyValue + 1);
 
-        keyValue = KvGetNum(statsKeygroupMatch, "saves", 0);
-        KvSetNum(statsKeygroupMatch, "saves", keyValue + 1);
+        keyValue = statsKeygroupMatch.GetNum("saves", 0);
+        statsKeygroupMatch.SetNum("saves", keyValue + 1);
 
-        keyValue = KvGetNum(statsKeygroupRound, "points", 0);
+        keyValue = statsKeygroupRound.GetNum("points", 0);
         keyValue += rankingPointsForSave;
-        KvSetNum(statsKeygroupRound, "points", keyValue);
+        statsKeygroupRound.SetNum("points", keyValue);
 
-        keyValue = KvGetNum(statsKeygroupMatch, "points", 0);
+        keyValue = statsKeygroupMatch.GetNum("points", 0);
         keyValue += rankingPointsForSave;
-        KvSetNum(statsKeygroupMatch, "points", keyValue);
+        statsKeygroupMatch.SetNum("points", keyValue);
 
         if (IsClientInGame(saverClientid) && IsClientConnected(saverClientid))
         {
@@ -373,11 +374,11 @@ public void StatsOnTakeDamage(int ball, int client)
         }
     }
 
-    KvRewind(statsKeygroupRound);
-    KvRewind(statsKeygroupMatch);
+    statsKeygroupRound.Rewind();
+    statsKeygroupMatch.Rewind();
 
-    // KeyValuesToFile(keygroupRound, statsKeygroupRound);
-    // KeyValuesToFile(keygroupMatch, statsKeygroupMatch);
+    // keygroupRound.ExportToFile(statsKeygroupRound);
+    // keygroupMatch.ExportToFile(statsKeygroupMatch);
 
     // keygroupRound.Close();
     // keygroupMatch.Close();
@@ -394,8 +395,8 @@ public void StatsOnPluginStart()
     // BuildPath(Path_SM, statsKeygroupMatch, sizeof(statsKeygroupMatch), "data/soccer_mod_match_stats.txt");
     // BuildPath(Path_SM, statsKeygroupRound, sizeof(statsKeygroupRound), "data/soccer_mod_round_stats.txt");
 
-    statsKeygroupMatch = CreateKeyValues("matchStatistics");
-    statsKeygroupRound = CreateKeyValues("roundStatistics");
+    statsKeygroupMatch = new KeyValues("matchStatistics");
+    statsKeygroupRound = new KeyValues("roundStatistics");
 }
 
 public void StatsOnMapStart()
@@ -416,32 +417,32 @@ public void StatsEventRoundStart(Event event)
 {
     ResetRoundStats();
 
-    Handle keygroup = CreateKeyValues("gk_areas");
-    FileToKeyValues(keygroup, statsKeygroupGoalkeeperAreas);
+    KeyValues keygroup = new KeyValues("gk_areas");
+    keygroup.ImportFromFile(statsKeygroupGoalkeeperAreas);
 
     char mapName[128];
     GetCurrentMap(mapName, sizeof(mapName));
 
     char bits[3][64];
     ExplodeString(mapName, "/", bits, sizeof(bits), sizeof(bits[]));
-    if (bits[2][0]) KvJumpToKey(keygroup, bits[2], false);
-    else KvJumpToKey(keygroup, bits[0], false);
+    if (bits[2][0]) keygroup.JumpToKey(bits[2], false);
+    else keygroup.JumpToKey(bits[0], false);
 
-    statsCTGKAreaMinX = KvGetFloat(keygroup, "ct_min_x", 0.0);
-    statsCTGKAreaMinY = KvGetFloat(keygroup, "ct_min_y", 0.0);
-    statsCTGKAreaMinZ = KvGetFloat(keygroup, "ct_min_z", 0.0);
-    statsCTGKAreaMaxX = KvGetFloat(keygroup, "ct_max_x", 0.0);
-    statsCTGKAreaMaxY = KvGetFloat(keygroup, "ct_max_y", 0.0);
-    statsCTGKAreaMaxZ = KvGetFloat(keygroup, "ct_max_z", 0.0);
+    statsCTGKAreaMinX = keygroup.GetFloat("ct_min_x", 0.0);
+    statsCTGKAreaMinY = keygroup.GetFloat("ct_min_y", 0.0);
+    statsCTGKAreaMinZ = keygroup.GetFloat("ct_min_z", 0.0);
+    statsCTGKAreaMaxX = keygroup.GetFloat("ct_max_x", 0.0);
+    statsCTGKAreaMaxY = keygroup.GetFloat("ct_max_y", 0.0);
+    statsCTGKAreaMaxZ = keygroup.GetFloat("ct_max_z", 0.0);
     if (debuggingEnabled) PrintToChatAll("%s CT GK Area: %.1f, %.1f, %.1f, %.1f, %.1f, %.1f", PREFIX, statsCTGKAreaMinX, statsCTGKAreaMinY, statsCTGKAreaMinZ, 
         statsCTGKAreaMaxX, statsCTGKAreaMaxY, statsCTGKAreaMaxZ);
 
-    statsTGKAreaMinX = KvGetFloat(keygroup, "t_min_x", 0.0);
-    statsTGKAreaMinY = KvGetFloat(keygroup, "t_min_y", 0.0);
-    statsTGKAreaMinZ = KvGetFloat(keygroup, "t_min_z", 0.0);
-    statsTGKAreaMaxX = KvGetFloat(keygroup, "t_max_x", 0.0);
-    statsTGKAreaMaxY = KvGetFloat(keygroup, "t_max_y", 0.0);
-    statsTGKAreaMaxZ = KvGetFloat(keygroup, "t_max_z", 0.0);
+    statsTGKAreaMinX = keygroup.GetFloat("t_min_x", 0.0);
+    statsTGKAreaMinY = keygroup.GetFloat("t_min_y", 0.0);
+    statsTGKAreaMinZ = keygroup.GetFloat("t_min_z", 0.0);
+    statsTGKAreaMaxX = keygroup.GetFloat("t_max_x", 0.0);
+    statsTGKAreaMaxY = keygroup.GetFloat("t_max_y", 0.0);
+    statsTGKAreaMaxZ = keygroup.GetFloat("t_max_z", 0.0);
     if (debuggingEnabled) PrintToChatAll("%s T GK Area: %.1f, %.1f, %.1f, %.1f, %.1f, %.1f", PREFIX, statsTGKAreaMinX, statsTGKAreaMinY, statsTGKAreaMinZ, 
         statsTGKAreaMaxX, statsTGKAreaMaxY, statsTGKAreaMaxZ);
 
@@ -592,8 +593,8 @@ public void StatsEventRoundEnd(Event event)
                 else LogMessage("%i - %i | Own goal: %s <%s>", matchScoreCT, matchScoreT, statsScorerName, statsScorerSteamid);
             }
 
-            // keygroup = CreateKeyValues("matchStatistics");
-            // FileToKeyValues(keygroup, statsKeygroupMatch);
+            // keygroup = new KeyValues("matchStatistics");
+            // keygroup.ImportFromFile(statsKeygroupMatch);
 
             for (int client = 1; client <= MaxClients; client++)
             {
@@ -605,14 +606,14 @@ public void StatsEventRoundEnd(Event event)
                         char steamid[32];
                         GetClientAuthId(client, AuthId_Engine, steamid, sizeof(steamid));
 
-                        KvJumpToKey(statsKeygroupMatch, steamid, true);
+                        statsKeygroupMatch.JumpToKey(steamid, true);
 
                         if (team == winner)
                         {
-                            int keyValue = KvGetNum(statsKeygroupMatch, "rounds_won", 0);
-                            KvSetNum(statsKeygroupMatch, "rounds_won", keyValue + 1);
-                            keyValue = KvGetNum(statsKeygroupMatch, "points", 0);
-                            KvSetNum(statsKeygroupMatch, "points", keyValue + rankingPointsForRoundWon);
+                            int keyValue = statsKeygroupMatch.GetNum("rounds_won", 0);
+                            statsKeygroupMatch.SetNum("rounds_won", keyValue + 1);
+                            keyValue = statsKeygroupMatch.GetNum("points", 0);
+                            statsKeygroupMatch.SetNum("points", keyValue + rankingPointsForRoundWon);
 
                             // Format(queryString, sizeof(queryString), "UPDATE %s SET rounds_won = (rounds_won + 1), points = (points + %i) WHERE steamid = '%s'", 
                             //  table, rankingPointsForRoundWon, steamid);
@@ -620,10 +621,10 @@ public void StatsEventRoundEnd(Event event)
                         }
                         else
                         {
-                            int keyValue = KvGetNum(statsKeygroupMatch, "rounds_lost", 0);
-                            KvSetNum(statsKeygroupMatch, "rounds_lost", keyValue + 1);
-                            keyValue = KvGetNum(statsKeygroupMatch, "points", 0);
-                            KvSetNum(statsKeygroupMatch, "points", keyValue + rankingPointsForRoundLost);
+                            int keyValue = statsKeygroupMatch.GetNum("rounds_lost", 0);
+                            statsKeygroupMatch.SetNum("rounds_lost", keyValue + 1);
+                            keyValue = statsKeygroupMatch.GetNum("points", 0);
+                            statsKeygroupMatch.SetNum("points", keyValue + rankingPointsForRoundLost);
 
                             // Format(queryString, sizeof(queryString), "UPDATE %s SET rounds_lost = (rounds_lost + 1), points = (points + %i) WHERE steamid = '%s'", 
                             //  table, rankingPointsForRoundLost, steamid);
@@ -633,8 +634,8 @@ public void StatsEventRoundEnd(Event event)
                 }
             }
 
-            KvRewind(statsKeygroupMatch);
-            // KeyValuesToFile(keygroup, statsKeygroupMatch);
+            statsKeygroupMatch.Rewind();
+            // keygroup.ExportToFile(statsKeygroupMatch);
             // keygroup.Close();
 
             for (int client = 1; client <= MaxClients; client++)
@@ -655,38 +656,38 @@ public void StatsEventRoundEnd(Event event)
     char table[32] = "soccer_mod_public_stats";
     if (matchStarted) table = "soccer_mod_match_stats";
 
-    // keygroup = CreateKeyValues("roundStatistics");
-    // FileToKeyValues(keygroup, statsKeygroupRound);
-    KvGotoFirstSubKey(statsKeygroupRound);
+    // keygroup = new KeyValues("roundStatistics");
+    // keygroup.ExportToFile(statsKeygroupRound);
+    statsKeygroupRound.GotoFirstSubKey();
 
     do
     {
-        int goals = KvGetNum(statsKeygroupRound, "goals", 0);
-        int assists = KvGetNum(statsKeygroupRound, "assists", 0);
-        int own_goals = KvGetNum(statsKeygroupRound, "own_goals", 0);
-        int rounds_won = KvGetNum(statsKeygroupRound, "rounds_won", 0);
-        int rounds_lost = KvGetNum(statsKeygroupRound, "rounds_lost", 0);
-        int hits = KvGetNum(statsKeygroupRound, "hits", 0);
-        int saves = KvGetNum(statsKeygroupRound, "saves", 0);
-        int passes = KvGetNum(statsKeygroupRound, "passes", 0);
-        int interceptions = KvGetNum(statsKeygroupRound, "interceptions", 0);
-        int ball_losses = KvGetNum(statsKeygroupRound, "ball_losses", 0);
-        int points = KvGetNum(statsKeygroupRound, "points", 0);
+        int goals = statsKeygroupRound.GetNum("goals", 0);
+        int assists = statsKeygroupRound.GetNum("assists", 0);
+        int own_goals = statsKeygroupRound.GetNum("own_goals", 0);
+        int rounds_won = statsKeygroupRound.GetNum("rounds_won", 0);
+        int rounds_lost = statsKeygroupRound.GetNum("rounds_lost", 0);
+        int hits = statsKeygroupRound.GetNum("hits", 0);
+        int saves = statsKeygroupRound.GetNum("saves", 0);
+        int passes = statsKeygroupRound.GetNum("passes", 0);
+        int interceptions = statsKeygroupRound.GetNum("interceptions", 0);
+        int ball_losses = statsKeygroupRound.GetNum("ball_losses", 0);
+        int points = statsKeygroupRound.GetNum("points", 0);
 
         // char clanTag[64];
         // CS_GetClientClanTag(client, clanTag, sizeof(clanTag));
 
         char steamid[32];
-        KvGetSectionName(statsKeygroupRound, steamid, sizeof(steamid));
+        statsKeygroupRound.GetSectionName(steamid, sizeof(steamid));
 
         Format(queryString, sizeof(queryString), "UPDATE %s SET goals = (goals + %i), assists = (assists + %i), own_goals = (own_goals + %i), rounds_won = (rounds_won + %i), \
             rounds_lost = (rounds_lost + %i), hits = (hits + %i), saves = (saves + %i), passes = (passes + %i), interceptions = (interceptions + %i), ball_losses = (ball_losses + %i), \
             points = (points + %i) WHERE steamid = '%s'", table, goals, assists, own_goals, rounds_won, rounds_lost, hits, saves, passes, interceptions, ball_losses, points, steamid);
         ExecuteQuery(queryString);
     }
-    while (KvGotoNextKey(statsKeygroupRound));
+    while (statsKeygroupRound.GotoNextKey());
 
-    KvRewind(statsKeygroupRound);
+    statsKeygroupRound.Rewind();
     // keygroup.Close();
 }
 
@@ -749,7 +750,7 @@ public int StatisticsMenuHandler(Menu menu, MenuAction action, int client, int c
             OpenTeamStatisticsMenu(client, langString, statsGoalsT, statsAssistsT, 
                 statsOwnGoalsT, statsPossessionT, statsSavesT, statsPassesT, statsRoundsWonT, statsRoundsLostT, statsInterceptionsT, statsBallLossesT, statsHitsT);
         }
-        else if (StrEqual(menuItem, "player"))              OpenPlayerStatisticsMenu(client);
+        else if (StrEqual(menuItem, "player"))              OpenSelectPlayerStatisticsMenu(client);
         else if (StrEqual(menuItem, "round"))               OpenRoundStatisticsMenu(client);
         else if (StrEqual(menuItem, "map"))                 OpenMapStatisticsMenu(client);
     }
@@ -811,9 +812,9 @@ public int TeamStatisticsMenuHandler(Menu menu, MenuAction action, int client, i
 // ****************************************************************************************************************************
 // ************************************************** PLAYER STATISTICS MENU **************************************************
 // ****************************************************************************************************************************
-public void OpenPlayerStatisticsMenu(int client)
+public void OpenSelectPlayerStatisticsMenu(int client)
 {
-    Menu menu = new Menu(MenuHandlerPlayerStatistics);
+    Menu menu = new Menu(MenuHandlerSelectPlayerStatistics);
 
     char langString[64], langString1[64], langString2[64];
     Format(langString1, sizeof(langString1), "%T", "Statistics", client);
@@ -839,7 +840,7 @@ public void OpenPlayerStatisticsMenu(int client)
     menu.Display(client, MENU_TIME_FOREVER);
 }
 
-public int MenuHandlerPlayerStatistics(Menu menu, MenuAction action, int client, int choice)
+public int MenuHandlerSelectPlayerStatistics(Menu menu, MenuAction action, int client, int choice)
 {
     if (action == MenuAction_Select)
     {
@@ -847,71 +848,80 @@ public int MenuHandlerPlayerStatistics(Menu menu, MenuAction action, int client,
         menu.GetItem(choice, menuItem, sizeof(menuItem));
         int target = StringToInt(menuItem);
 
-        if (IsClientInGame(target) && IsClientConnected(target))
-        {
-            menu = new Menu(MenuHandlerPlayerStatistics);
-
-            char langString[64], langString1[64], langString2[64];
-            Format(langString1, sizeof(langString1), "%T", "Statistics", client);
-            Format(langString2, sizeof(langString2), "%T", "Player", client);
-            Format(langString, sizeof(langString), "Soccer Mod - %s - %s", langString1, langString2);
-            menu.SetTitle(langString);
-
-            char steamid[32];
-            GetClientAuthId(target, AuthId_Engine, steamid, sizeof(steamid));
-
-            // Handle keygroup = CreateKeyValues("matchStatistics");
-            // FileToKeyValues(keygroup, statsKeygroupMatch);
-
-            KvJumpToKey(statsKeygroupMatch, steamid, true);
-
-            char playerName[MAX_NAME_LENGTH];
-            GetClientName(target, playerName, sizeof(playerName));
-
-            char menuString[32];
-            Format(langString, sizeof(langString), "%T", "Name", client);
-            Format(menuString, sizeof(menuString), "%s: %s", langString, playerName);
-            menu.AddItem("name", menuString, ITEMDRAW_DISABLED);
-
-            AddStatisticsMenuItem(client, menu, menuString, "Points",           KvGetNum(statsKeygroupMatch, "points", 0),          "points");
-            AddStatisticsMenuItem(client, menu, menuString, "Goals",            KvGetNum(statsKeygroupMatch, "goals", 0),           "goals");
-            AddStatisticsMenuItem(client, menu, menuString, "Assists",          KvGetNum(statsKeygroupMatch, "assists", 0),         "assists");
-            AddStatisticsMenuItem(client, menu, menuString, "Own goals",        KvGetNum(statsKeygroupMatch, "own_goals", 0),       "own_goals");
-
-            Format(langString, sizeof(langString), "%T", "Possession", client);
-
-            if (statsPossessionTotal > 0)
-            {
-                int value = RoundToNearest(KvGetFloat(statsKeygroupMatch, "possession", 0.0) / statsPossessionTotal * 100);
-                Format(menuString, sizeof(menuString), "%s: %i%", langString, value);
-                menu.AddItem("possession", menuString, ITEMDRAW_DISABLED);
-            }
-            else
-            {
-                Format(menuString, sizeof(menuString), "%s: 0%", langString);
-                menu.AddItem("possession", menuString, ITEMDRAW_DISABLED);
-            }
-
-            AddStatisticsMenuItem(client, menu, menuString, "Saves",            KvGetNum(statsKeygroupMatch, "saves", 0),           "saves");
-            AddStatisticsMenuItem(client, menu, menuString, "Passes",           KvGetNum(statsKeygroupMatch, "passes", 0),          "passes");
-            AddStatisticsMenuItem(client, menu, menuString, "Rounds won",       KvGetNum(statsKeygroupMatch, "rounds_won", 0),      "rounds_won");
-            AddStatisticsMenuItem(client, menu, menuString, "Rounds lost",      KvGetNum(statsKeygroupMatch, "rounds_lost", 0),     "rounds_lost");
-            AddStatisticsMenuItem(client, menu, menuString, "Interceptions",    KvGetNum(statsKeygroupMatch, "interceptions", 0),   "interceptions");
-            AddStatisticsMenuItem(client, menu, menuString, "Ball losses",      KvGetNum(statsKeygroupMatch, "ball_losses", 0),     "ball_losses");
-            AddStatisticsMenuItem(client, menu, menuString, "Hits",             KvGetNum(statsKeygroupMatch, "hits", 0),            "hits");
-
-            KvRewind(statsKeygroupMatch);
-            // keygroup.Close();
-
-            menu.ExitBackButton = true;
-            menu.Display(client, MENU_TIME_FOREVER);
-        }
+        if (IsClientInGame(target) && IsClientConnected(target)) OpenPlayerStatisticsMenu(client, target);
         else
         {
             PrintToChat(client, "[Soccer Mod]\x04 %t", "Player is no longer on the server");
             OpenStatisticsMenu(client);
         }
     }
+    else if (action == MenuAction_Cancel && choice == -6)   OpenStatisticsMenu(client);
+    else if (action == MenuAction_End)                      menu.Close();
+}
+
+public void OpenPlayerStatisticsMenu(int client, int target)
+{
+    Menu menu = new Menu(MenuHandlerPlayerStatistics);
+
+    char langString[64], langString1[64], langString2[64];
+    Format(langString1, sizeof(langString1), "%T", "Statistics", client);
+    Format(langString2, sizeof(langString2), "%T", "Player", client);
+    Format(langString, sizeof(langString), "Soccer Mod - %s - %s", langString1, langString2);
+    menu.SetTitle(langString);
+
+    char steamid[32];
+    GetClientAuthId(target, AuthId_Engine, steamid, sizeof(steamid));
+
+    // Handle keygroup = new KeyValues("matchStatistics");
+    // keygroup.ImportFromFile(statsKeygroupMatch);
+
+    statsKeygroupMatch.JumpToKey(steamid, true);
+
+    char playerName[MAX_NAME_LENGTH];
+    GetClientName(target, playerName, sizeof(playerName));
+
+    char menuString[32];
+    Format(langString, sizeof(langString), "%T", "Name", client);
+    Format(menuString, sizeof(menuString), "%s: %s", langString, playerName);
+    menu.AddItem("name", menuString, ITEMDRAW_DISABLED);
+
+    AddStatisticsMenuItem(client, menu, menuString, "Points",           statsKeygroupMatch.GetNum("points", 0),          "points");
+    AddStatisticsMenuItem(client, menu, menuString, "Goals",            statsKeygroupMatch.GetNum("goals", 0),           "goals");
+    AddStatisticsMenuItem(client, menu, menuString, "Assists",          statsKeygroupMatch.GetNum("assists", 0),         "assists");
+    AddStatisticsMenuItem(client, menu, menuString, "Own goals",        statsKeygroupMatch.GetNum("own_goals", 0),       "own_goals");
+
+    Format(langString, sizeof(langString), "%T", "Possession", client);
+
+    if (statsPossessionTotal > 0)
+    {
+        int value = RoundToNearest(statsKeygroupMatch.GetFloat("possession", 0.0) / statsPossessionTotal * 100);
+        Format(menuString, sizeof(menuString), "%s: %i%", langString, value);
+        menu.AddItem("possession", menuString, ITEMDRAW_DISABLED);
+    }
+    else
+    {
+        Format(menuString, sizeof(menuString), "%s: 0%", langString);
+        menu.AddItem("possession", menuString, ITEMDRAW_DISABLED);
+    }
+
+    AddStatisticsMenuItem(client, menu, menuString, "Saves",            statsKeygroupMatch.GetNum("saves", 0),           "saves");
+    AddStatisticsMenuItem(client, menu, menuString, "Passes",           statsKeygroupMatch.GetNum("passes", 0),          "passes");
+    AddStatisticsMenuItem(client, menu, menuString, "Rounds won",       statsKeygroupMatch.GetNum("rounds_won", 0),      "rounds_won");
+    AddStatisticsMenuItem(client, menu, menuString, "Rounds lost",      statsKeygroupMatch.GetNum("rounds_lost", 0),     "rounds_lost");
+    AddStatisticsMenuItem(client, menu, menuString, "Interceptions",    statsKeygroupMatch.GetNum("interceptions", 0),   "interceptions");
+    AddStatisticsMenuItem(client, menu, menuString, "Ball losses",      statsKeygroupMatch.GetNum("ball_losses", 0),     "ball_losses");
+    AddStatisticsMenuItem(client, menu, menuString, "Hits",             statsKeygroupMatch.GetNum("hits", 0),            "hits");
+
+    statsKeygroupMatch.Rewind();
+    // keygroup.Close();
+
+    menu.ExitBackButton = true;
+    menu.Display(client, MENU_TIME_FOREVER);
+}
+
+public int MenuHandlerPlayerStatistics(Menu menu, MenuAction action, int client, int choice)
+{
+    if (action == MenuAction_Select)                        OpenStatisticsMenu(client);
     else if (action == MenuAction_Cancel && choice == -6)   OpenStatisticsMenu(client);
     else if (action == MenuAction_End)                      menu.Close();
 }
@@ -932,23 +942,23 @@ public void OpenRoundStatisticsMenu(int client)
     char steamid[32];
     GetClientAuthId(client, AuthId_Engine, steamid, sizeof(steamid));
 
-    // Handle keygroup = CreateKeyValues("roundStatistics");
-    // FileToKeyValues(keygroup, statsKeygroupRound);
+    // KeyValues keygroup = new KeyValues("roundStatistics");
+    // keygroup.ExportToFile(statsKeygroupRound);
 
-    KvJumpToKey(statsKeygroupRound, steamid, true);
+    statsKeygroupRound.JumpToKey(steamid, true);
 
     char menuString[32];
-    AddStatisticsMenuItem(client, menu, menuString, "Points",           KvGetNum(statsKeygroupRound, "points", 0),          "points");
-    AddStatisticsMenuItem(client, menu, menuString, "Goals",            KvGetNum(statsKeygroupRound, "goals", 0),           "goals");
-    AddStatisticsMenuItem(client, menu, menuString, "Assists",          KvGetNum(statsKeygroupRound, "assists", 0),         "assists");
-    AddStatisticsMenuItem(client, menu, menuString, "Own goals",        KvGetNum(statsKeygroupRound, "own_goals", 0),       "own_goals");
-    AddStatisticsMenuItem(client, menu, menuString, "Saves",            KvGetNum(statsKeygroupRound, "saves", 0),           "saves");
-    AddStatisticsMenuItem(client, menu, menuString, "Passes",           KvGetNum(statsKeygroupRound, "passes", 0),          "passes");
-    AddStatisticsMenuItem(client, menu, menuString, "Interceptions",    KvGetNum(statsKeygroupRound, "interceptions", 0),   "interceptions");
-    AddStatisticsMenuItem(client, menu, menuString, "Ball losses",      KvGetNum(statsKeygroupRound, "ball_losses", 0),     "ball_losses");
-    AddStatisticsMenuItem(client, menu, menuString, "Hits",             KvGetNum(statsKeygroupRound, "hits", 0),            "hits");
+    AddStatisticsMenuItem(client, menu, menuString, "Points",           statsKeygroupRound.GetNum("points", 0),          "points");
+    AddStatisticsMenuItem(client, menu, menuString, "Goals",            statsKeygroupRound.GetNum("goals", 0),           "goals");
+    AddStatisticsMenuItem(client, menu, menuString, "Assists",          statsKeygroupRound.GetNum("assists", 0),         "assists");
+    AddStatisticsMenuItem(client, menu, menuString, "Own goals",        statsKeygroupRound.GetNum("own_goals", 0),       "own_goals");
+    AddStatisticsMenuItem(client, menu, menuString, "Saves",            statsKeygroupRound.GetNum("saves", 0),           "saves");
+    AddStatisticsMenuItem(client, menu, menuString, "Passes",           statsKeygroupRound.GetNum("passes", 0),          "passes");
+    AddStatisticsMenuItem(client, menu, menuString, "Interceptions",    statsKeygroupRound.GetNum("interceptions", 0),   "interceptions");
+    AddStatisticsMenuItem(client, menu, menuString, "Ball losses",      statsKeygroupRound.GetNum("ball_losses", 0),     "ball_losses");
+    AddStatisticsMenuItem(client, menu, menuString, "Hits",             statsKeygroupRound.GetNum("hits", 0),            "hits");
 
-    KvRewind(statsKeygroupRound);
+    statsKeygroupRound.Rewind();
     // keygroup.Close();
 
     menu.ExitBackButton = true;
@@ -978,22 +988,22 @@ public void OpenMapStatisticsMenu(int client)
     char steamid[32];
     GetClientAuthId(client, AuthId_Engine, steamid, sizeof(steamid));
 
-    // Handle keygroup = CreateKeyValues("matchStatistics");
-    // FileToKeyValues(keygroup, statsKeygroupMatch);
+    // Handle keygroup = new KeyValues("matchStatistics");
+    // keygroup.ImportFromFile(statsKeygroupMatch);
 
-    KvJumpToKey(statsKeygroupMatch, steamid, true);
+    statsKeygroupMatch.JumpToKey(steamid, true);
 
     char menuString[32];
-    AddStatisticsMenuItem(client, menu, menuString, "Points",           KvGetNum(statsKeygroupMatch, "points", 0),          "points");
-    AddStatisticsMenuItem(client, menu, menuString, "Goals",            KvGetNum(statsKeygroupMatch, "goals", 0),           "goals");
-    AddStatisticsMenuItem(client, menu, menuString, "Assists",          KvGetNum(statsKeygroupMatch, "assists", 0),         "assists");
-    AddStatisticsMenuItem(client, menu, menuString, "Own goals",        KvGetNum(statsKeygroupMatch, "own_goals", 0),       "own_goals");
+    AddStatisticsMenuItem(client, menu, menuString, "Points",           statsKeygroupMatch.GetNum("points", 0),          "points");
+    AddStatisticsMenuItem(client, menu, menuString, "Goals",            statsKeygroupMatch.GetNum("goals", 0),           "goals");
+    AddStatisticsMenuItem(client, menu, menuString, "Assists",          statsKeygroupMatch.GetNum("assists", 0),         "assists");
+    AddStatisticsMenuItem(client, menu, menuString, "Own goals",        statsKeygroupMatch.GetNum("own_goals", 0),       "own_goals");
 
     Format(langString, sizeof(langString), "%T", "Possession", client);
 
     if (statsPossessionTotal > 0)
     {
-        int value = RoundToNearest(KvGetFloat(statsKeygroupMatch, "possession", 0.0) / statsPossessionTotal * 100);
+        int value = RoundToNearest(statsKeygroupMatch.GetFloat("possession", 0.0) / statsPossessionTotal * 100);
         Format(menuString, sizeof(menuString), "%s: %i%", langString, value);
         menu.AddItem("possession", menuString, ITEMDRAW_DISABLED);
     }
@@ -1003,15 +1013,15 @@ public void OpenMapStatisticsMenu(int client)
         menu.AddItem("possession", menuString, ITEMDRAW_DISABLED);
     }
 
-    AddStatisticsMenuItem(client, menu, menuString, "Saves",            KvGetNum(statsKeygroupMatch, "saves", 0),           "saves");
-    AddStatisticsMenuItem(client, menu, menuString, "Passes",           KvGetNum(statsKeygroupMatch, "passes", 0),          "passes");
-    AddStatisticsMenuItem(client, menu, menuString, "Rounds won",       KvGetNum(statsKeygroupMatch, "rounds_won", 0),      "rounds_won");
-    AddStatisticsMenuItem(client, menu, menuString, "Rounds lost",      KvGetNum(statsKeygroupMatch, "rounds_lost", 0),     "rounds_lost");
-    AddStatisticsMenuItem(client, menu, menuString, "Interceptions",    KvGetNum(statsKeygroupMatch, "interceptions", 0),   "interceptions");
-    AddStatisticsMenuItem(client, menu, menuString, "Ball losses",      KvGetNum(statsKeygroupMatch, "ball_losses", 0),     "ball_losses");
-    AddStatisticsMenuItem(client, menu, menuString, "Hits",             KvGetNum(statsKeygroupMatch, "hits", 0),            "hits");
+    AddStatisticsMenuItem(client, menu, menuString, "Saves",            statsKeygroupMatch.GetNum("saves", 0),           "saves");
+    AddStatisticsMenuItem(client, menu, menuString, "Passes",           statsKeygroupMatch.GetNum("passes", 0),          "passes");
+    AddStatisticsMenuItem(client, menu, menuString, "Rounds won",       statsKeygroupMatch.GetNum("rounds_won", 0),      "rounds_won");
+    AddStatisticsMenuItem(client, menu, menuString, "Rounds lost",      statsKeygroupMatch.GetNum("rounds_lost", 0),     "rounds_lost");
+    AddStatisticsMenuItem(client, menu, menuString, "Interceptions",    statsKeygroupMatch.GetNum("interceptions", 0),   "interceptions");
+    AddStatisticsMenuItem(client, menu, menuString, "Ball losses",      statsKeygroupMatch.GetNum("ball_losses", 0),     "ball_losses");
+    AddStatisticsMenuItem(client, menu, menuString, "Hits",             statsKeygroupMatch.GetNum("hits", 0),            "hits");
 
-    KvRewind(statsKeygroupMatch);
+    statsKeygroupMatch.Rewind();
     // keygroup.Close();
 
     menu.ExitBackButton = true;
@@ -1035,24 +1045,24 @@ public Action SetPlayerStats(Handle timer, any client)
         char steamid[32];
         GetClientAuthId(client, AuthId_Engine, steamid, sizeof(steamid));
 
-        // Handle keygroup = CreateKeyValues("matchStatistics");
-        // FileToKeyValues(keygroup, statsKeygroupMatch);
+        // Handle keygroup = new KeyValues("matchStatistics");
+        // keygroup.ImportFromFile(statsKeygroupMatch);
 
-        KvJumpToKey(statsKeygroupMatch, steamid, true);
+        statsKeygroupMatch.JumpToKey(steamid, true);
 
-        SetEntProp(client, Prop_Data, "m_iFrags", KvGetNum(statsKeygroupMatch, "goals", 0));
+        SetEntProp(client, Prop_Data, "m_iFrags", statsKeygroupMatch.GetNum("goals", 0));
 
         if (StrEqual(game, "csgo"))
         {
-            CS_SetClientAssists(client, KvGetNum(statsKeygroupMatch, "assists", 0));
-            CS_SetClientContributionScore(client, KvGetNum(statsKeygroupMatch, "points", 0));
-            SetEntProp(client, Prop_Data, "m_iDeaths", KvGetNum(statsKeygroupMatch, "hits", 0));
+            CS_SetClientAssists(client, statsKeygroupMatch.GetNum("assists", 0));
+            CS_SetClientContributionScore(client, statsKeygroupMatch.GetNum("points", 0));
+            SetEntProp(client, Prop_Data, "m_iDeaths", statsKeygroupMatch.GetNum("hits", 0));
         }
-        else SetEntProp(client, Prop_Data, "m_iDeaths", KvGetNum(statsKeygroupMatch, "points", 0));
+        else SetEntProp(client, Prop_Data, "m_iDeaths", statsKeygroupMatch.GetNum("points", 0));
 
-        CS_SetMVPCount(client, KvGetNum(statsKeygroupMatch, "mvpCount", 0));
+        CS_SetMVPCount(client, statsKeygroupMatch.GetNum("mvpCount", 0));
 
-        KvRewind(statsKeygroupMatch);
+        statsKeygroupMatch.Rewind();
         // keygroup.Close();
     }
 }
@@ -1087,10 +1097,10 @@ public void ResetMatchStats()
     statsRoundsLostT        = 0;
 
     statsKeygroupMatch.Close();
-    statsKeygroupMatch = CreateKeyValues("matchStatistics");
+    statsKeygroupMatch = new KeyValues("matchStatistics");
 
     statsKeygroupRound.Close();
-    statsKeygroupRound = CreateKeyValues("roundStatistics");
+    statsKeygroupRound = new KeyValues("roundStatistics");
 }
 
 public void ResetRoundStats()
@@ -1108,41 +1118,41 @@ public void ResetRoundStats()
     statsSaver              = 0;
 
     statsKeygroupRound.Close();
-    statsKeygroupRound = CreateKeyValues("roundStatistics");
+    statsKeygroupRound = new KeyValues("roundStatistics");
 }
 
 public void AddPlayerStatInt(char name[32], char steamid[32], char stat[16], int points)
 {
-    // Handle keygroup = CreateKeyValues("matchStatistics");
-    // FileToKeyValues(keygroup, statsKeygroupMatch);
+    // Handle keygroup = new KeyValues("matchStatistics");
+    // keygroup.ImportFromFile(statsKeygroupMatch);
 
-    KvJumpToKey(statsKeygroupMatch, steamid, true);
+    statsKeygroupMatch.JumpToKey(steamid, true);
 
-    int keyValue = KvGetNum(statsKeygroupMatch, stat, 0);
-    KvSetNum(statsKeygroupMatch, stat, keyValue + 1);
+    int keyValue = statsKeygroupMatch.GetNum(stat, 0);
+    statsKeygroupMatch.SetNum(stat, keyValue + 1);
 
-    keyValue = KvGetNum(statsKeygroupMatch, "points", 0);
-    KvSetNum(statsKeygroupMatch, "points", keyValue + points);
-    KvSetString(statsKeygroupMatch, "name", name);
+    keyValue = statsKeygroupMatch.GetNum("points", 0);
+    statsKeygroupMatch.SetNum("points", keyValue + points);
+    statsKeygroupMatch.SetString("name", name);
 
-    KvRewind(statsKeygroupMatch);
-    // KeyValuesToFile(keygroup, statsKeygroupMatch);
+    statsKeygroupMatch.Rewind();
+    // keygroup.ExportToFile(statsKeygroupMatch);
     // keygroup.Close();
 
-    // keygroup = CreateKeyValues("roundStatistics");
-    // FileToKeyValues(keygroup, statsKeygroupRound);
+    // keygroup = new KeyValues("roundStatistics");
+    // keygroup.ExportToFile(statsKeygroupRound);
 
-    KvJumpToKey(statsKeygroupRound, steamid, true);
+    statsKeygroupRound.JumpToKey(steamid, true);
 
-    keyValue = KvGetNum(statsKeygroupRound, stat, 0);
-    KvSetNum(statsKeygroupRound, stat, keyValue + 1);
+    keyValue = statsKeygroupRound.GetNum(stat, 0);
+    statsKeygroupRound.SetNum(stat, keyValue + 1);
 
-    keyValue = KvGetNum(statsKeygroupRound, "points", 0);
-    KvSetNum(statsKeygroupRound, "points", keyValue + points);
-    KvSetString(statsKeygroupRound, "name", name);
+    keyValue = statsKeygroupRound.GetNum("points", 0);
+    statsKeygroupRound.SetNum("points", keyValue + points);
+    statsKeygroupRound.SetString("name", name);
 
-    KvRewind(statsKeygroupRound);
-    // KeyValuesToFile(keygroup, statsKeygroupRound);
+    statsKeygroupRound.Rewind();
+    // keygroup.ExportToFile(statsKeygroupRound);
     // keygroup.Close();
 }
 
@@ -1152,16 +1162,16 @@ public void AddPlayerStatPossession(char steamid[32], float possession, int team
     else if (team == 3) statsPossessionCT += possession;
     statsPossessionTotal += possession;
 
-    // Handle keygroup = CreateKeyValues("matchStatistics");
-    // FileToKeyValues(keygroup, statsKeygroupMatch);
+    // Handle keygroup = new KeyValues("matchStatistics");
+    // keygroup.ImportFromFile(statsKeygroupMatch);
 
-    KvJumpToKey(statsKeygroupMatch, steamid, true);
+    statsKeygroupMatch.JumpToKey(steamid, true);
 
-    float keyValue = KvGetFloat(statsKeygroupMatch, "possession", 0.0);
-    KvSetFloat(statsKeygroupMatch, "possession", keyValue + possession);
+    float keyValue = statsKeygroupMatch.GetFloat("possession", 0.0);
+    statsKeygroupMatch.SetFloat("possession", keyValue + possession);
 
-    KvRewind(statsKeygroupMatch);
-    // KeyValuesToFile(keygroup, statsKeygroupMatch);
+    statsKeygroupMatch.Rewind();
+    // keygroup.ExportToFile(statsKeygroupMatch);
     // keygroup.Close();
 }
 
@@ -1173,16 +1183,16 @@ public void ShowMVP()
     char steamidMVP[32];
     char queryString[1024];
 
-    // Handle keygroup = CreateKeyValues("roundStatistics");
-    // FileToKeyValues(keygroup, statsKeygroupRound);
-    KvGotoFirstSubKey(statsKeygroupRound);
+    // KeyValues keygroup = new KeyValues("roundStatistics");
+    // keygroup.ExportToFile(statsKeygroupRound);
+    statsKeygroupRound.GotoFirstSubKey();
 
     // int sizeCT = GetTeamClientCount(3);
     // int sizeT = GetTeamClientCount(2);
 
     do
     {
-        // KvGetSectionName(keygroup, steamid, sizeof(steamid));
+        // keygroup.GetSectionName(steamid, sizeof(steamid));
 
         // if (sizeCT > 1 && sizeT > 1)
         // {
@@ -1190,32 +1200,32 @@ public void ShowMVP()
         //  ExecuteQuery(queryString);
         // }
 
-        int keyValue = KvGetNum(statsKeygroupRound, "points", 0);
+        int keyValue = statsKeygroupRound.GetNum("points", 0);
         if (keyValue > highestScore)
         {
-            KvGetString(statsKeygroupRound, "name", roundMVP, sizeof(roundMVP));
-            KvGetSectionName(statsKeygroupRound, steamidMVP, sizeof(steamidMVP));
+            statsKeygroupRound.GetString("name", roundMVP, sizeof(roundMVP));
+            statsKeygroupRound.GetSectionName(steamidMVP, sizeof(steamidMVP));
             highestScore = keyValue;
         }
     }
-    while (KvGotoNextKey(statsKeygroupRound));
-    KvRewind(statsKeygroupRound);
+    while (statsKeygroupRound.GotoNextKey());
+    statsKeygroupRound.Rewind();
     // keygroup.Close();
 
     if (highestScore)
     {
-        // keygroup = CreateKeyValues("matchStatistics");
-        // FileToKeyValues(keygroup, statsKeygroupMatch);
+        // keygroup = new KeyValues("matchStatistics");
+        // keygroup.ImportFromFile(statsKeygroupMatch);
 
-        KvJumpToKey(statsKeygroupMatch, steamidMVP, true);
+        statsKeygroupMatch.JumpToKey(steamidMVP, true);
 
-        int keyValue = KvGetNum(statsKeygroupMatch, "mvpCount", 0);
-        KvSetNum(statsKeygroupMatch, "mvpCount", keyValue + 1);
-        keyValue = KvGetNum(statsKeygroupMatch, "points", 0);
-        KvSetNum(statsKeygroupMatch, "points", keyValue + rankingPointsForMVP);
+        int keyValue = statsKeygroupMatch.GetNum("mvpCount", 0);
+        statsKeygroupMatch.SetNum("mvpCount", keyValue + 1);
+        keyValue = statsKeygroupMatch.GetNum("points", 0);
+        statsKeygroupMatch.SetNum("points", keyValue + rankingPointsForMVP);
 
-        KvRewind(statsKeygroupMatch);
-        // KeyValuesToFile(keygroup, statsKeygroupMatch);
+        statsKeygroupMatch.Rewind();
+        // keygroup.ExportToFile(statsKeygroupMatch);
         // keygroup.Close();
 
         char table[32];
@@ -1249,37 +1259,37 @@ public void ShowManOfTheMatch()
     char matchMVP[MAX_NAME_LENGTH];
     char steamidMVP[32];
 
-    // Handle keygroup = CreateKeyValues("matchStatistics");
-    // FileToKeyValues(keygroup, statsKeygroupMatch);
-    KvGotoFirstSubKey(statsKeygroupMatch);
+    // Handle keygroup = new KeyValues("matchStatistics");
+    // keygroup.ImportFromFile(statsKeygroupMatch);
+    statsKeygroupMatch.GotoFirstSubKey();
 
     do
     {
-        int keyValue = KvGetNum(statsKeygroupMatch, "points", 0);
+        int keyValue = statsKeygroupMatch.GetNum("points", 0);
         if (keyValue > highestScore)
         {
-            KvGetString(statsKeygroupMatch, "name", matchMVP, sizeof(matchMVP));
-            KvGetSectionName(statsKeygroupMatch, steamidMVP, sizeof(steamidMVP));
+            statsKeygroupMatch.GetString("name", matchMVP, sizeof(matchMVP));
+            statsKeygroupMatch.GetSectionName(steamidMVP, sizeof(steamidMVP));
             highestScore = keyValue;
         }
     }
-    while (KvGotoNextKey(statsKeygroupMatch));
+    while (statsKeygroupMatch.GotoNextKey());
 
-    KvRewind(statsKeygroupMatch);
+    statsKeygroupMatch.Rewind();
     // keygroup.Close();
 
     if (highestScore)
     {
-        // keygroup = CreateKeyValues("matchStatistics");
-        // FileToKeyValues(keygroup, statsKeygroupMatch);
+        // keygroup = new KeyValues("matchStatistics");
+        // keygroup.ImportFromFile(statsKeygroupMatch);
 
-        KvJumpToKey(statsKeygroupMatch, steamidMVP, true);
+        statsKeygroupMatch.JumpToKey(steamidMVP, true);
 
-        int keyValue = KvGetNum(statsKeygroupMatch, "motm", 0);
-        KvSetNum(statsKeygroupMatch, "motm", keyValue + 1);
+        int keyValue = statsKeygroupMatch.GetNum("motm", 0);
+        statsKeygroupMatch.SetNum("motm", keyValue + 1);
 
-        KvRewind(statsKeygroupMatch);
-        // KeyValuesToFile(keygroup, statsKeygroupMatch);
+        statsKeygroupMatch.Rewind();
+        // keygroup.ExportToFile(statsKeygroupMatch);
         // keygroup.Close();
 
         char table[32];

@@ -675,6 +675,9 @@ public void OpenCreditsMenu(int client)
     Format(langString, sizeof(langString), "%T", "Soccer Mod group", client);
     menu.AddItem("group", langString);
 
+    Format(langString, sizeof(langString), "%T", "Soccer Mod version: $version", client, PLUGIN_VERSION);
+    menu.AddItem("group", langString, ITEMDRAW_DISABLED);
+
     menu.ExitBackButton = true;
     menu.Display(client, MENU_TIME_FOREVER);
 }

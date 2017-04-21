@@ -122,42 +122,47 @@ public int SkinsMenuHandler(Menu menu, MenuAction action, int client, int choice
         char menuItem[32];
         menu.GetItem(choice, menuItem, sizeof(menuItem));
 
-        Handle keygroup = CreateKeyValues("skins");
-        FileToKeyValues(keygroup, skinsKeygroup);
-
-        char name[32];
-        char path[PLATFORM_MAX_PATH];
-
-        KvGotoFirstSubKey(keygroup);
-
-        Menu menuSkins;
-        if (StrEqual(menuItem, "CT")) menuSkins = new Menu(SkinsCTSelectionMenuHandler);
-        else menuSkins = new Menu(SkinsTSelectionMenuHandler);
-
-        char langString[128], langString1[64], langString2[64], langString3[64];
-        Format(langString1, sizeof(langString1), "%T", "Admin", client);
-        Format(langString2, sizeof(langString2), "%T", "Settings", client);
-        Format(langString3, sizeof(langString3), "%T", "Skins", client);
-        Format(langString, sizeof(langString), "Soccer Mod - %s - %s - %s - %s", langString1, langString2, langString3, menuItem);
-        menuSkins.SetTitle(langString);
-
-        do
-        {
-            KvGetSectionName(keygroup, name, sizeof(name));
-            KvGetString(keygroup, menuItem, path, sizeof(path));
-
-            menuSkins.AddItem(path, name);
-        }
-        while (KvGotoNextKey(keygroup));
-
-        KvRewind(keygroup);
-        keygroup.Close();
-
-        menuSkins.ExitBackButton = true;
-        menuSkins.Display(client, 0);
+        OpenSkinsSelectionMenu(client, menuItem);
     }
     else if (action == MenuAction_Cancel && choice == -6)   OpenSettingsMenu(client);
     else if (action == MenuAction_End)                      menu.Close();
+}
+
+public void OpenSkinsSelectionMenu(int client, char type[32])
+{
+    Menu menu;
+    if (StrEqual(type, "CT")) menu = new Menu(SkinsCTSelectionMenuHandler);
+    else menu = new Menu(SkinsTSelectionMenuHandler);
+
+    char langString[128], langString1[64], langString2[64], langString3[64];
+    Format(langString1, sizeof(langString1), "%T", "Admin", client);
+    Format(langString2, sizeof(langString2), "%T", "Settings", client);
+    Format(langString3, sizeof(langString3), "%T", "Skins", client);
+    Format(langString, sizeof(langString), "Soccer Mod - %s - %s - %s - %s", langString1, langString2, langString3, type);
+    menu.SetTitle(langString);
+
+    KeyValues keygroup = new KeyValues("skins");
+    keygroup.ImportFromFile(skinsKeygroup);
+
+    keygroup.GotoFirstSubKey();
+
+    char name[32];
+    char path[PLATFORM_MAX_PATH];
+
+    do
+    {
+        keygroup.GetSectionName(name, sizeof(name));
+        keygroup.GetString(type, path, sizeof(path));
+
+        menu.AddItem(path, name);
+    }
+    while (keygroup.GotoNextKey());
+
+    keygroup.Rewind();
+    keygroup.Close();
+
+    menu.ExitBackButton = true;
+    menu.Display(client, 0);
 }
 
 public int SkinsCTSelectionMenuHandler(Menu menu, MenuAction action, int client, int choice)

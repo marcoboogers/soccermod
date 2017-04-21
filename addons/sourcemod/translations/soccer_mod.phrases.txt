@@ -138,6 +138,12 @@
 		"en"		"Soccer Mod group"
 	}
 
+	"Soccer Mod version: $version"
+	{
+		"#format"	"{1:s}"
+		"en"		"Soccer Mod version: {1}"
+	}
+
 	// ************************************************** HELP **************************************************
 	"Help"
 	{

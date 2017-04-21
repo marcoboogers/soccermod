@@ -1,4 +1,4 @@
-#define PLUGIN_VERSION "2017.1.0"
+#define PLUGIN_VERSION "2017.4.21"
 #define PREFIX "[Soccer Mod]\x04"
 
 bool capFightStarted        = false;

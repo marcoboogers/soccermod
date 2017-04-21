@@ -117,9 +117,6 @@ public int TrainingMenuHandler(Menu menu, MenuAction action, int client, int cho
             char menuItem[32];
             menu.GetItem(choice, menuItem, sizeof(menuItem));
 
-            char steamid[32];
-            GetClientAuthId(client, AuthId_Engine, steamid, sizeof(steamid));
-
             if (StrEqual(menuItem, "disable_goals"))
             {
                 TrainingDisableGoals(client);
@@ -187,24 +184,9 @@ public int TrainingCannonMenuHandler(Menu menu, MenuAction action, int client, i
         char menuItem[32];
         menu.GetItem(choice, menuItem, sizeof(menuItem));
 
-        char steamid[32];
-        GetClientAuthId(client, AuthId_Engine, steamid, sizeof(steamid));
-
         if (StrEqual(menuItem, "off"))
         {
-            if (trainingCannonTimer != null)
-            {
-                KillTrainingCannonTimer();
-
-                for (int player = 1; player <= MaxClients; player++)
-                {
-                    if (IsClientInGame(player) && IsClientConnected(player)) PrintToChat(player, "[Soccer Mod]\x04 %t", "$player has turned the cannon off", client);
-                }
-
-                LogMessage("%N <%s> has turned the cannon off", client, steamid);
-            }
-            else PrintToChat(client, "[Soccer Mod]\x04 %t", "Cannon is already off");
-
+            TrainingCannonOff(client);
             OpenTrainingCannonMenu(client);
         }
         else
@@ -213,103 +195,15 @@ public int TrainingCannonMenuHandler(Menu menu, MenuAction action, int client, i
             {
                 if (StrEqual(menuItem, "position"))
                 {
-                    GetAimOrigin(client, trainingCannonPosition);
-                    trainingCannonPosition[2] += 15;
-
-                    for (int player = 1; player <= MaxClients; player++)
-                    {
-                        if (IsClientInGame(player) && IsClientConnected(player)) PrintToChat(player, "[Soccer Mod]\x04 %t", "$player has set the cannon position", client);
-                    }
-
-                    LogMessage("%N <%s> has set the cannon position", client, steamid);
+                    TrainingCannonPosition(client);
                     OpenTrainingCannonMenu(client);
                 }
                 else if (StrEqual(menuItem, "aim"))
                 {
-                    GetAimOrigin(client, trainingCannonAim);
-
-                    for (int player = 1; player <= MaxClients; player++)
-                    {
-                        if (IsClientInGame(player) && IsClientConnected(player)) PrintToChat(player, "[Soccer Mod]\x04 %t", "$player has set the cannon aim position", client);
-                    }
-
-                    LogMessage("%N <%s> has set the cannon aim position", client, steamid);
+                    TrainingCannonAimPosition(client);
                     OpenTrainingCannonMenu(client);
                 }
-                else if (StrEqual(menuItem, "on"))
-                {
-                    if (trainingCannonTimer == null)
-                    {
-                        if (!IsValidEntity(trainingCannonBallIndex))
-                        {
-                            int count = 0;
-                            int numbers[64];
-                            int index;
-
-                            while ((index = FindEntityByClassname(index, "func_physbox")) != INVALID_ENT_REFERENCE)
-                            {
-                                char entPropString[64];
-                                GetEntPropString(index, Prop_Data, "m_iName", entPropString, sizeof(entPropString));
-
-                                if (entPropString[0])
-                                {
-                                    numbers[count] = index;
-                                    count++;
-                                }
-                            }
-
-                            while ((index = FindEntityByClassname(index, "prop_physics")) != INVALID_ENT_REFERENCE)
-                            {
-                                char entPropString[64];
-                                GetEntPropString(index, Prop_Data, "m_iName", entPropString, sizeof(entPropString));
-
-                                if (entPropString[0])
-                                {
-                                    numbers[count] = index;
-                                    count++;
-                                }
-                            }
-
-                            if (count > 1)
-                            {
-                                PrintToChat(client, "[Soccer Mod]\x04 %t", "More than one possible ball found");
-                                OpenTrainingCannonSelectBallMenu(client, count, numbers);
-                            }
-                            else
-                            {
-                                trainingCannonBallIndex = numbers[0];
-                                KillTrainingCannonTimer();
-                                trainingCannonTimer = CreateTimer(0.0, TrainingCannonShoot);
-
-                                for (int player = 1; player <= MaxClients; player++)
-                                {
-                                    if (IsClientInGame(player) && IsClientConnected(player)) PrintToChat(player, "[Soccer Mod]\x04 %t", "$player has turned the cannon on", client);
-                                }
-
-                                LogMessage("%N <%s> has turned the cannon on", client, steamid);
-                                OpenTrainingCannonMenu(client);
-                            }
-                        }
-                        else
-                        {
-                            KillTrainingCannonTimer();
-                            trainingCannonTimer = CreateTimer(0.0, TrainingCannonShoot);
-
-                            for (int player = 1; player <= MaxClients; player++)
-                            {
-                                if (IsClientInGame(player) && IsClientConnected(player)) PrintToChat(player, "[Soccer Mod]\x04 %t", "$player has turned the cannon on", client);
-                            }
-
-                            LogMessage("%N <%s> has turned the cannon on", client, steamid);
-                            OpenTrainingCannonMenu(client);
-                        }
-                    }
-                    else
-                    {
-                        PrintToChat(client, "[Soccer Mod]\x04 %t", "Cannon is already on");
-                        OpenTrainingCannonMenu(client);
-                    }
-                }
+                else if (StrEqual(menuItem, "on")) TrainingCannonOn(client);
                 else if (StrEqual(menuItem, "settings")) OpenTrainingCannonSettingsMenu(client);
             }
             else
@@ -557,4 +451,129 @@ public void TrainingSpawnBall(int client)
         }
     }
     else PrintToChat(client, "[Soccer Mod]\x04 %t", "Cant spawn model $model", trainingModelBall);
+}
+
+public void TrainingCannonOn(int client)
+{
+    if (trainingCannonTimer == null)
+    {
+        char steamid[32];
+        GetClientAuthId(client, AuthId_Engine, steamid, sizeof(steamid));
+
+        if (!IsValidEntity(trainingCannonBallIndex))
+        {
+            int count = 0;
+            int numbers[64];
+            int index;
+
+            while ((index = FindEntityByClassname(index, "func_physbox")) != INVALID_ENT_REFERENCE)
+            {
+                char entPropString[64];
+                GetEntPropString(index, Prop_Data, "m_iName", entPropString, sizeof(entPropString));
+
+                if (entPropString[0])
+                {
+                    numbers[count] = index;
+                    count++;
+                }
+            }
+
+            while ((index = FindEntityByClassname(index, "prop_physics")) != INVALID_ENT_REFERENCE)
+            {
+                char entPropString[64];
+                GetEntPropString(index, Prop_Data, "m_iName", entPropString, sizeof(entPropString));
+
+                if (entPropString[0])
+                {
+                    numbers[count] = index;
+                    count++;
+                }
+            }
+
+            if (count > 1)
+            {
+                PrintToChat(client, "[Soccer Mod]\x04 %t", "More than one possible ball found");
+                OpenTrainingCannonSelectBallMenu(client, count, numbers);
+            }
+            else
+            {
+                trainingCannonBallIndex = numbers[0];
+                KillTrainingCannonTimer();
+                trainingCannonTimer = CreateTimer(0.0, TrainingCannonShoot);
+
+                for (int player = 1; player <= MaxClients; player++)
+                {
+                    if (IsClientInGame(player) && IsClientConnected(player)) PrintToChat(player, "[Soccer Mod]\x04 %t", "$player has turned the cannon on", client);
+                }
+
+                LogMessage("%N <%s> has turned the cannon on", client, steamid);
+                OpenTrainingCannonMenu(client);
+            }
+        }
+        else
+        {
+            KillTrainingCannonTimer();
+            trainingCannonTimer = CreateTimer(0.0, TrainingCannonShoot);
+
+            for (int player = 1; player <= MaxClients; player++)
+            {
+                if (IsClientInGame(player) && IsClientConnected(player)) PrintToChat(player, "[Soccer Mod]\x04 %t", "$player has turned the cannon on", client);
+            }
+
+            LogMessage("%N <%s> has turned the cannon on", client, steamid);
+            OpenTrainingCannonMenu(client);
+        }
+    }
+    else
+    {
+        PrintToChat(client, "[Soccer Mod]\x04 %t", "Cannon is already on");
+        OpenTrainingCannonMenu(client);
+    }
+}
+
+public void TrainingCannonOff(int client)
+{
+    if (trainingCannonTimer != null)
+    {
+        KillTrainingCannonTimer();
+
+        for (int player = 1; player <= MaxClients; player++)
+        {
+            if (IsClientInGame(player) && IsClientConnected(player)) PrintToChat(player, "[Soccer Mod]\x04 %t", "$player has turned the cannon off", client);
+        }
+
+        char steamid[32];
+        GetClientAuthId(client, AuthId_Engine, steamid, sizeof(steamid));
+        LogMessage("%N <%s> has turned the cannon off", client, steamid);
+    }
+    else PrintToChat(client, "[Soccer Mod]\x04 %t", "Cannon is already off");
+}
+
+public void TrainingCannonPosition(int client)
+{
+    GetAimOrigin(client, trainingCannonPosition);
+    trainingCannonPosition[2] += 15;
+
+    for (int player = 1; player <= MaxClients; player++)
+    {
+        if (IsClientInGame(player) && IsClientConnected(player)) PrintToChat(player, "[Soccer Mod]\x04 %t", "$player has set the cannon position", client);
+    }
+
+    char steamid[32];
+    GetClientAuthId(client, AuthId_Engine, steamid, sizeof(steamid));
+    LogMessage("%N <%s> has set the cannon position", client, steamid);
+}
+
+public void TrainingCannonAimPosition(int client)
+{
+    GetAimOrigin(client, trainingCannonAim);
+
+    for (int player = 1; player <= MaxClients; player++)
+    {
+        if (IsClientInGame(player) && IsClientConnected(player)) PrintToChat(player, "[Soccer Mod]\x04 %t", "$player has set the cannon aim position", client);
+    }
+
+    char steamid[32];
+    GetClientAuthId(client, AuthId_Engine, steamid, sizeof(steamid));
+    LogMessage("%N <%s> has set the cannon aim position", client, steamid);
 }
