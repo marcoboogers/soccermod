@@ -33,6 +33,14 @@ public void ClientCommandSetGoalkeeperSkin(int client)
 public void SkinsOnPluginStart()
 {
     BuildPath(Path_SM, skinsKeygroup, sizeof(skinsKeygroup), "configs/soccer_mod_skins.txt");
+
+    if (StrEqual(game, "cstrike"))
+    {
+        skinsModelCT            = "models/player/soccer_mod/termi/2011/away/ct_urban.mdl";
+        skinsModelT             = "models/player/soccer_mod/termi/2011/home/ct_urban.mdl";
+        skinsModelCTGoalkeeper  = "models/player/soccer_mod/termi/2011/gkaway/ct_urban.mdl";
+        skinsModelTGoalkeeper   = "models/player/soccer_mod/termi/2011/gkhome/ct_urban.mdl";
+    }
 }
 
 public void SkinsOnMapStart()

@@ -1,4 +1,4 @@
-#define PLUGIN_VERSION "2017.4.21"
+#define PLUGIN_VERSION "2017.4.24"
 #define PREFIX "[Soccer Mod]\x04"
 
 bool capFightStarted        = false;
@@ -6,7 +6,7 @@ bool currentMapAllowed      = false;
 bool goalScored             = false;
 bool matchStarted           = false;
 bool roundEnded             = false;
-char game[16]               = "csgo";
+char game[8]                = "csgo";
 float gameTickRate          = 64.0;
 Handle allowedMaps          = INVALID_HANDLE;
 Handle db                   = INVALID_HANDLE;
@@ -95,6 +95,7 @@ public void OnPluginStart()
     SkinsOnPluginStart();
     SprintOnPluginStart();
     StatsOnPluginStart();
+    TrainingOnPluginStart();
 
     LoadJoinTeamFix();
     LoadRadioCommandsFix();
@@ -218,8 +219,17 @@ public void OnMapStart()
     }
     else LoadConfigNonSoccer();
 
-    AddDirToDownloads("materials/models/player/soccermod");
-    AddDirToDownloads("models/player/soccermod");
+    if (StrEqual(game, "cstrike"))
+    {
+        AddDirToDownloads("materials/models/player/soccer_mod/termi/2011");
+        AddDirToDownloads("models/player/soccer_mod/termi/2011");
+    }
+    else
+    {
+        AddDirToDownloads("materials/models/player/soccermod");
+        AddDirToDownloads("models/player/soccermod");
+    }
+
     AddDirToDownloads("materials/models/soccer_mod");
     AddDirToDownloads("models/soccer_mod");
 
@@ -366,15 +376,15 @@ public void CreateAllowedMapsFile()
 {
     File file = OpenFile(allowedMapsConfigFile, "w");
 
-    if (StrEqual(game, "csgo"))
-    {
-        PushArrayString(allowedMaps, "ka_xsl_stadium_b1");
-        file.WriteLine("ka_xsl_stadium_b1");
-    }
-    else
+    if (StrEqual(game, "cstrike"))
     {
         PushArrayString(allowedMaps, "ka_soccer_xsl_stadium_b1");
         file.WriteLine("ka_soccer_xsl_stadium_b1");
+    }
+    else
+    {
+        PushArrayString(allowedMaps, "ka_xsl_stadium_b1");
+        file.WriteLine("ka_xsl_stadium_b1");
     }
 
     file.Close();
@@ -407,7 +417,7 @@ public void SaveAllowedMaps()
     }
 }
 
-public void OpenMapsDirectory(char path[PLATFORM_MAX_PATH], Handle menu)
+public void OpenMapsDirectory(char path[PLATFORM_MAX_PATH], Menu menu)
 {
     Handle dir = OpenDirectory(path);
     if (dir != INVALID_HANDLE)
@@ -427,7 +437,7 @@ public void OpenMapsDirectory(char path[PLATFORM_MAX_PATH], Handle menu)
                     int replaced = ReplaceString(filename, sizeof(filename), ".bsp", "");
                     Format(full, sizeof(full), "%s/%s", path, filename);
                     ReplaceString(full, sizeof(full), "maps/", "");
-                    if (FindStringInArray(allowedMaps, full) < 0 && replaced && IsMapValid(full)) AddMenuItem(menu, full, full);
+                    if (FindStringInArray(allowedMaps, full) < 0 && replaced && IsMapValid(full)) menu.AddItem(full, full);
                 }
                 else if (type == FileType_Directory) OpenMapsDirectory(full, menu);
             }

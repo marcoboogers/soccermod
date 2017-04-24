@@ -61,6 +61,11 @@ public void TrainingCannonSet(int client, char type[32], float number, float min
 // ************************************************************************************************************
 // ************************************************** EVENTS **************************************************
 // ************************************************************************************************************
+public void TrainingOnPluginStart()
+{
+    if (StrEqual(game, "cstrike")) trainingModelBall = "models/soccer_mod/ball_2011.mdl";
+}
+
 public void TrainingOnMapStart()
 {
     trainingCannonBallIndex     = -1;

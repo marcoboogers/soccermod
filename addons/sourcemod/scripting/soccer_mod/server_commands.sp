@@ -125,8 +125,8 @@ public Action ServerCommands(int args)
         SetCvarFloat("phys_timescale", value);
 
         phys_timescale = value;
-        PrintToServer("%s Timescale set to %i", PREFIX, value);
-        PrintToChatAll("%s Timescale set to %i", PREFIX, value);
+        PrintToServer("%s Timescale set to %f", PREFIX, value);
+        PrintToChatAll("%s Timescale set to %f", PREFIX, value);
     }
 
     return Plugin_Handled;
