@@ -4,83 +4,77 @@ public void ConnectToDatabase()
     db = SQL_Connect(databaseConfig, false, error, sizeof(error));
 
     if (db == INVALID_HANDLE) LogError("Could not connect to the database: %s", error);
-    else
-    {
-        char query[1024] = "CREATE TABLE soccer_mod_players (\
-            steamid         VARCHAR(32)     PRIMARY KEY     NOT NULL,\
-            name            VARCHAR(255)                    NOT NULL,\
-            last_connected  INTEGER         DEFAULT '0'     NOT NULL,\
-            created         INTEGER         DEFAULT '0'     NOT NULL,\
-            play_time       INTEGER         DEFAULT '0'     NOT NULL,\
-            player_ip       VARCHAR(16)                     NOT NULL,\
-            server_ip       VARCHAR(16)                     NOT NULL\
-        )";
-        SQL_FastQuery(db, query);
-        SQL_FastQuery(db, "ALTER TABLE soccer_mod_players ADD money INTEGER DEFAULT '0' NOT NULL");
+    else CreateTables();
+}
 
-        query = "CREATE TABLE soccer_mod_positions (\
-            steamid         VARCHAR(32)     PRIMARY KEY     NOT NULL,\
-            gk              INTEGER         DEFAULT '0'     NOT NULL,\
-            lb              INTEGER         DEFAULT '0'     NOT NULL,\
-            rb              INTEGER         DEFAULT '0'     NOT NULL,\
-            mf              INTEGER         DEFAULT '0'     NOT NULL,\
-            lw              INTEGER         DEFAULT '0'     NOT NULL,\
-            rw              INTEGER         DEFAULT '0'     NOT NULL\
-        )";
-        SQL_FastQuery(db, query);
+public void CreateTables()
+{
+    char query[1024] = "CREATE TABLE soccer_mod_players (\
+        steamid         VARCHAR(32)     PRIMARY KEY     NOT NULL,\
+        name            VARCHAR(255)                    NOT NULL,\
+        last_connected  INTEGER         DEFAULT '0'     NOT NULL,\
+        created         INTEGER         DEFAULT '0'     NOT NULL,\
+        play_time       INTEGER         DEFAULT '0'     NOT NULL,\
+        player_ip       VARCHAR(16)                     NOT NULL,\
+        server_ip       VARCHAR(16)                     NOT NULL\
+    )";
+    SQL_FastQuery(db, query);
 
-        query = "CREATE TABLE soccer_mod_match_stats (\
-            steamid         VARCHAR(32)     PRIMARY KEY     NOT NULL,\
-            goals           INTEGER         DEFAULT '0'     NOT NULL,\
-            assists         INTEGER         DEFAULT '0'     NOT NULL,\
-            own_goals       INTEGER         DEFAULT '0'     NOT NULL,\
-            hits            INTEGER         DEFAULT '0'     NOT NULL,\
-            passes          INTEGER         DEFAULT '0'     NOT NULL,\
-            interceptions   INTEGER         DEFAULT '0'     NOT NULL,\
-            ball_losses     INTEGER         DEFAULT '0'     NOT NULL,\
-            saves           INTEGER         DEFAULT '0'     NOT NULL,\
-            rounds_won      INTEGER         DEFAULT '0'     NOT NULL,\
-            rounds_lost     INTEGER         DEFAULT '0'     NOT NULL,\
-            points          INTEGER         DEFAULT '0'     NOT NULL\
-        )";
-        SQL_FastQuery(db, query);
-        SQL_FastQuery(db, "ALTER TABLE soccer_mod_match_stats ADD mvp INTEGER DEFAULT '0' NOT NULL");
-        SQL_FastQuery(db, "ALTER TABLE soccer_mod_match_stats ADD motm INTEGER DEFAULT '0' NOT NULL");
+    query = "CREATE TABLE soccer_mod_positions (\
+        steamid         VARCHAR(32)     PRIMARY KEY     NOT NULL,\
+        gk              INTEGER         DEFAULT '0'     NOT NULL,\
+        lb              INTEGER         DEFAULT '0'     NOT NULL,\
+        rb              INTEGER         DEFAULT '0'     NOT NULL,\
+        mf              INTEGER         DEFAULT '0'     NOT NULL,\
+        lw              INTEGER         DEFAULT '0'     NOT NULL,\
+        rw              INTEGER         DEFAULT '0'     NOT NULL\
+    )";
+    SQL_FastQuery(db, query);
 
-        query = "CREATE TABLE soccer_mod_public_stats (\
-            steamid         VARCHAR(32)     PRIMARY KEY     NOT NULL,\
-            goals           INTEGER         DEFAULT '0'     NOT NULL,\
-            assists         INTEGER         DEFAULT '0'     NOT NULL,\
-            own_goals       INTEGER         DEFAULT '0'     NOT NULL,\
-            hits            INTEGER         DEFAULT '0'     NOT NULL,\
-            passes          INTEGER         DEFAULT '0'     NOT NULL,\
-            interceptions   INTEGER         DEFAULT '0'     NOT NULL,\
-            ball_losses     INTEGER         DEFAULT '0'     NOT NULL,\
-            saves           INTEGER         DEFAULT '0'     NOT NULL,\
-            rounds_won      INTEGER         DEFAULT '0'     NOT NULL,\
-            rounds_lost     INTEGER         DEFAULT '0'     NOT NULL,\
-            points          INTEGER         DEFAULT '0'     NOT NULL\
-        )";
-        SQL_FastQuery(db, query);
-        SQL_FastQuery(db, "ALTER TABLE soccer_mod_public_stats ADD mvp INTEGER DEFAULT '0' NOT NULL");
-        SQL_FastQuery(db, "ALTER TABLE soccer_mod_public_stats ADD motm INTEGER DEFAULT '0' NOT NULL");
+    query = "CREATE TABLE soccer_mod_match_stats (\
+        steamid         VARCHAR(32)     PRIMARY KEY     NOT NULL,\
+        goals           INTEGER         DEFAULT '0'     NOT NULL,\
+        assists         INTEGER         DEFAULT '0'     NOT NULL,\
+        own_goals       INTEGER         DEFAULT '0'     NOT NULL,\
+        hits            INTEGER         DEFAULT '0'     NOT NULL,\
+        passes          INTEGER         DEFAULT '0'     NOT NULL,\
+        interceptions   INTEGER         DEFAULT '0'     NOT NULL,\
+        ball_losses     INTEGER         DEFAULT '0'     NOT NULL,\
+        saves           INTEGER         DEFAULT '0'     NOT NULL,\
+        rounds_won      INTEGER         DEFAULT '0'     NOT NULL,\
+        rounds_lost     INTEGER         DEFAULT '0'     NOT NULL,\
+        points          INTEGER         DEFAULT '0'     NOT NULL\
+    )";
+    SQL_FastQuery(db, query);
 
-        /*
-        query = "CREATE TABLE soccer_mod_shop_knives (\
-            steamid             VARCHAR(32)     PRIMARY KEY         NOT NULL,\
-            equipped            VARCHAR(32)     DEFAULT 'knife'     NOT NULL,\
-            bayonet             INTEGER         DEFAULT '0'         NOT NULL,\
-            knife_butterfly     INTEGER         DEFAULT '0'         NOT NULL,\
-            knife_flip          INTEGER         DEFAULT '0'         NOT NULL,\
-            knifegg             INTEGER         DEFAULT '0'         NOT NULL,\
-            knife_gut           INTEGER         DEFAULT '0'         NOT NULL,\
-            knife_karambit      INTEGER         DEFAULT '0'         NOT NULL,\
-            knife_m9_bayonet    INTEGER         DEFAULT '0'         NOT NULL,\
-            knife_tactical      INTEGER         DEFAULT '0'         NOT NULL\
-        )";
-        SQL_FastQuery(db, query);
-        */
-    }
+    query = "CREATE TABLE soccer_mod_public_stats (\
+        steamid         VARCHAR(32)     PRIMARY KEY     NOT NULL,\
+        goals           INTEGER         DEFAULT '0'     NOT NULL,\
+        assists         INTEGER         DEFAULT '0'     NOT NULL,\
+        own_goals       INTEGER         DEFAULT '0'     NOT NULL,\
+        hits            INTEGER         DEFAULT '0'     NOT NULL,\
+        passes          INTEGER         DEFAULT '0'     NOT NULL,\
+        interceptions   INTEGER         DEFAULT '0'     NOT NULL,\
+        ball_losses     INTEGER         DEFAULT '0'     NOT NULL,\
+        saves           INTEGER         DEFAULT '0'     NOT NULL,\
+        rounds_won      INTEGER         DEFAULT '0'     NOT NULL,\
+        rounds_lost     INTEGER         DEFAULT '0'     NOT NULL,\
+        points          INTEGER         DEFAULT '0'     NOT NULL\
+    )";
+    SQL_FastQuery(db, query);
+
+    ApplyPatches();
+}
+
+public void ApplyPatches()
+{
+    SQL_FastQuery(db, "ALTER TABLE soccer_mod_players ADD money INTEGER DEFAULT '0' NOT NULL");
+
+    SQL_FastQuery(db, "ALTER TABLE soccer_mod_match_stats ADD mvp INTEGER DEFAULT '0' NOT NULL");
+    SQL_FastQuery(db, "ALTER TABLE soccer_mod_match_stats ADD motm INTEGER DEFAULT '0' NOT NULL");
+
+    SQL_FastQuery(db, "ALTER TABLE soccer_mod_public_stats ADD mvp INTEGER DEFAULT '0' NOT NULL");
+    SQL_FastQuery(db, "ALTER TABLE soccer_mod_public_stats ADD motm INTEGER DEFAULT '0' NOT NULL");
 }
 
 public bool ExecuteQuery(char[] query)

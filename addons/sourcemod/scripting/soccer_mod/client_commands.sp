@@ -12,7 +12,7 @@ public Action ClientCommands(int client, int args)
 
     if (StrEqual(cmdArg, "admin"))
     {
-        if (CheckCommandAccess(client, "generic_admin", ADMFLAG_GENERIC)) OpenAdminMenu(client);
+        if (CheckCommandAccess(client, "generic_admin", ADMFLAG_GENERIC)) OpenMenuAdmin(client);
         else PrintToChat(client, "[Soccer Mod]\x04 %t", "You are not allowed to use this option");
     }
     else if (StrEqual(cmdArg, "cap"))
@@ -114,10 +114,10 @@ public Action ClientCommands(int client, int args)
         if (currentMapAllowed) ClientCommandSprint(client);
         else PrintToChat(client, "[Soccer Mod]\x04 %t", "Soccer Mod is not allowed on this map");
     }
-    else if (StrEqual(cmdArg, "help"))                                  OpenHelpMenu(client);
-    else if (StrEqual(cmdArg, "commands"))                              OpenChatCommandsMenu(client);
-    else if (StrEqual(cmdArg, "credits") || StrEqual(cmdArg, "info"))   OpenCreditsMenu(client);
-    else OpenSoccerMenu(client);
+    else if (StrEqual(cmdArg, "help"))                                  OpenMenuHelp(client);
+    else if (StrEqual(cmdArg, "commands"))                              OpenMenuCommands(client);
+    else if (StrEqual(cmdArg, "credits") || StrEqual(cmdArg, "info"))   OpenMenuCredits(client);
+    else OpenMenuSoccer(client);
 
     return Plugin_Handled;
 }

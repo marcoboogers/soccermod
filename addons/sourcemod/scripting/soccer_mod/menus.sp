@@ -1,9 +1,9 @@
 // *****************************************************************************************************************
 // ************************************************** SOCCER MENU **************************************************
 // *****************************************************************************************************************
-public void OpenSoccerMenu(int client)
+public void OpenMenuSoccer(int client)
 {
-    Menu menu = new Menu(SoccerMenuHandler);
+    Menu menu = new Menu(MenuHandlerSoccer);
     menu.SetTitle("Soccer Mod");
 
     char langString[64];
@@ -32,7 +32,7 @@ public void OpenSoccerMenu(int client)
     menu.Display(client, MENU_TIME_FOREVER);
 }
 
-public int SoccerMenuHandler(Menu menu, MenuAction action, int client, int choice)
+public int MenuHandlerSoccer(Menu menu, MenuAction action, int client, int choice)
 {
     if (action == MenuAction_Select)
     {
@@ -41,52 +41,36 @@ public int SoccerMenuHandler(Menu menu, MenuAction action, int client, int choic
 
         if (StrEqual(menuItem, "admin"))
         {
-            if (CheckCommandAccess(client, "generic_admin", ADMFLAG_GENERIC)) OpenAdminMenu(client);
+            if (CheckCommandAccess(client, "generic_admin", ADMFLAG_GENERIC)) OpenMenuAdmin(client);
             else
             {
                 PrintToChat(client, "[Soccer Mod]\x04 %t", "You are not allowed to use this option");
-                OpenSoccerMenu(client);
+                OpenMenuSoccer(client);
             }
         }
-        else if (StrEqual(menuItem, "positions"))
+        else if (StrEqual(menuItem, "help"))        OpenMenuHelp(client);
+        else if (StrEqual(menuItem, "credits"))     OpenMenuCredits(client);
+        else if (currentMapAllowed)
         {
-            if (currentMapAllowed) OpenCapPositionMenu(client);
-            else
-            {
-                PrintToChat(client, "[Soccer Mod]\x04 %t", "Soccer Mod is not allowed on this map");
-                OpenSoccerMenu(client);
-            }
+            if (StrEqual(menuItem, "positions"))    OpenCapPositionMenu(client);
+            else if (StrEqual(menuItem, "ranking")) OpenRankingMenu(client);
+            else if (StrEqual(menuItem, "stats"))   OpenStatisticsMenu(client);
         }
-        else if (StrEqual(menuItem, "ranking"))
+        else
         {
-            if (currentMapAllowed) OpenRankingMenu(client);
-            else
-            {
-                PrintToChat(client, "[Soccer Mod]\x04 %t", "Soccer Mod is not allowed on this map");
-                OpenSoccerMenu(client);
-            }
+            PrintToChat(client, "[Soccer Mod]\x04 %t", "Soccer Mod is not allowed on this map");
+            OpenMenuSoccer(client);
         }
-        else if (StrEqual(menuItem, "stats"))
-        {
-            if (currentMapAllowed) OpenStatisticsMenu(client);
-            else
-            {
-                PrintToChat(client, "[Soccer Mod]\x04 %t", "Soccer Mod is not allowed on this map");
-                OpenSoccerMenu(client);
-            }
-        }
-        else if (StrEqual(menuItem, "help"))        OpenHelpMenu(client);
-        else if (StrEqual(menuItem, "credits"))     OpenCreditsMenu(client);
     }
-    else if (action == MenuAction_End)              menu.Close();
+    else if (action == MenuAction_End) menu.Close();
 }
 
 // ****************************************************************************************************************
 // ************************************************** ADMIN MENU **************************************************
 // ****************************************************************************************************************
-public void OpenAdminMenu(int client)
+public void OpenMenuAdmin(int client)
 {
-    Menu menu = new Menu(AdminMenuHandler);
+    Menu menu = new Menu(MenuHandlerAdmin);
 
     char langString[64];
     Format(langString, sizeof(langString), "Soccer Mod - %T", "Admin", client);
@@ -114,14 +98,14 @@ public void OpenAdminMenu(int client)
     menu.Display(client, MENU_TIME_FOREVER);
 }
 
-public int AdminMenuHandler(Menu menu, MenuAction action, int client, int choice)
+public int MenuHandlerAdmin(Menu menu, MenuAction action, int client, int choice)
 {
     if (action == MenuAction_Select)
     {
         char menuItem[32];
         menu.GetItem(choice, menuItem, sizeof(menuItem));
 
-        if (StrEqual(menuItem, "settings"))                 OpenSettingsMenu(client);
+        if (StrEqual(menuItem, "settings"))                 OpenMenuSettings(client);
         else if (StrEqual(menuItem, "spec"))                OpenMenuSpecPlayer(client);
         else if (currentMapAllowed)
         {
@@ -133,19 +117,19 @@ public int AdminMenuHandler(Menu menu, MenuAction action, int client, int choice
         else
         {
             PrintToChat(client, "[Soccer Mod]\x04 %t", "Soccer Mod is not allowed on this map");
-            OpenAdminMenu(client);
+            OpenMenuAdmin(client);
         }
     }
-    else if (action == MenuAction_Cancel && choice == -6)   OpenSoccerMenu(client);
+    else if (action == MenuAction_Cancel && choice == -6)   OpenMenuSoccer(client);
     else if (action == MenuAction_End)                      menu.Close();
 }
 
-// ****************************************************************************************************************
-// ************************************************** ADMIN MENU **************************************************
-// ****************************************************************************************************************
-public void OpenSettingsMenu(int client)
+// *******************************************************************************************************************
+// ************************************************** SETTINGS MENU **************************************************
+// *******************************************************************************************************************
+public void OpenMenuSettings(int client)
 {
-    Menu menu = new Menu(OpenSettingsMenuHandler);
+    Menu menu = new Menu(MenuHandlerSettings);
 
     char langString[64], langString1[64], langString2[64];
     Format(langString1, sizeof(langString1), "%T", "Admin", client);
@@ -165,33 +149,33 @@ public void OpenSettingsMenu(int client)
     menu.Display(client, MENU_TIME_FOREVER);
 }
 
-public int OpenSettingsMenuHandler(Menu menu, MenuAction action, int client, int choice)
+public int MenuHandlerSettings(Menu menu, MenuAction action, int client, int choice)
 {
     if (action == MenuAction_Select)
     {
         char menuItem[32];
         menu.GetItem(choice, menuItem, sizeof(menuItem));
 
-        if (StrEqual(menuItem, "maps"))                     OpenMapsMenu(client);
+        if (StrEqual(menuItem, "maps"))                     OpenMenuMaps(client);
         else if (currentMapAllowed)
         {
             if (StrEqual(menuItem, "skins"))                OpenSkinsMenu(client);
-            else if (StrEqual(menuItem, "gk_areas"))        OpenGKAreasMenu(client);
+            else if (StrEqual(menuItem, "gk_areas"))        OpenMenuGKAreas(client);
         }
         else
         {
             PrintToChat(client, "[Soccer Mod]\x04 %t", "Soccer Mod is not allowed on this map");
-            OpenSettingsMenu(client);
+            OpenMenuSettings(client);
         }
     }
-    else if (action == MenuAction_Cancel && choice == -6)   OpenAdminMenu(client);
+    else if (action == MenuAction_Cancel && choice == -6)   OpenMenuAdmin(client);
     else if (action == MenuAction_End)                      menu.Close();
 }
 
 // ************************************************** TEST **************************************************
-public void OpenGKAreasMenu(int client)
+public void OpenMenuGKAreas(int client)
 {
-    Menu menu = new Menu(GKAreasMenuHandler);
+    Menu menu = new Menu(MenuHandlerGKAreas);
     menu.SetTitle("Soccer Mod - Admin - Settings - GK area's");
 
     int index;
@@ -209,7 +193,7 @@ public void OpenGKAreasMenu(int client)
     menu.Display(client, MENU_TIME_FOREVER);
 }
 
-public int GKAreasMenuHandler(Menu menu, MenuAction action, int client, int choice)
+public int MenuHandlerGKAreas(Menu menu, MenuAction action, int client, int choice)
 {
     if (action == MenuAction_Select)
     {
@@ -253,9 +237,9 @@ public int GKAreasMenuHandler(Menu menu, MenuAction action, int client, int choi
         while ((beam = GetEntityIndexByName("gk_area_beam", "env_beam")) != -1) AcceptEntityInput(beam, "Kill");
         DrawLaser("gk_area_beam", origin[0], origin[1], origin[2], origin[0] + 200.0, origin[1], origin[2], "0 0 255");
 
-        OpenGKAreasMenu(client);
+        OpenMenuGKAreas(client);
     }
-    else if (action == MenuAction_Cancel && choice == -6)   OpenSettingsMenu(client);
+    else if (action == MenuAction_Cancel && choice == -6)   OpenMenuSettings(client);
     else if (action == MenuAction_End)                      menu.Close();
 }
 // ************************************************** END TEST **************************************************
@@ -298,7 +282,7 @@ public void OpenMenuSpecPlayer(int client)
     else
     {
         PrintToChat(client, "[Soccer Mod]\x04 %t", "All players already are in spectator");
-        OpenAdminMenu(client);
+        OpenMenuAdmin(client);
     }
 }
 
@@ -333,18 +317,18 @@ public int MenuHandlerSpecPlayer(Menu menu, MenuAction action, int client, int c
         }
         else PrintToChat(client, "[Soccer Mod]\x04 %t", "Player is no longer on the server");
 
-        OpenAdminMenu(client);
+        OpenMenuAdmin(client);
     }
-    else if (action == MenuAction_Cancel && choice == -6)   OpenAdminMenu(client);
+    else if (action == MenuAction_Cancel && choice == -6)   OpenMenuAdmin(client);
     else if (action == MenuAction_End)                      menu.Close();
 }
 
 // ***************************************************************************************************************
 // ************************************************** MAPS MENU **************************************************
 // ***************************************************************************************************************
-public void OpenMapsMenu(int client)
+public void OpenMenuMaps(int client)
 {
-    Menu menu = new Menu(MapsMenuHandler);
+    Menu menu = new Menu(MenuHandlerMaps);
 
     char langString[64], langString1[64], langString2[64], langString3[64];
     Format(langString1, sizeof(langString1), "%T", "Admin", client);
@@ -366,27 +350,27 @@ public void OpenMapsMenu(int client)
     menu.Display(client, MENU_TIME_FOREVER);
 }
 
-public int MapsMenuHandler(Menu menu, MenuAction action, int client, int choice)
+public int MenuHandlerMaps(Menu menu, MenuAction action, int client, int choice)
 {
     if (action == MenuAction_Select)
     {
         char menuItem[16];
         menu.GetItem(choice, menuItem, sizeof(menuItem));
 
-        if (StrEqual(menuItem, "add"))                      OpenMapsAddMenu(client);
-        else if (StrEqual(menuItem, "change"))              OpenMapsChangeMenu(client);
-        else if (StrEqual(menuItem, "remove"))              OpenMapsRemoveMenu(client);
+        if (StrEqual(menuItem, "add"))                      OpenMenuMapsAdd(client);
+        else if (StrEqual(menuItem, "change"))              OpenMenuMapsChange(client);
+        else if (StrEqual(menuItem, "remove"))              OpenMenuMapsRemove(client);
     }
-    else if (action == MenuAction_Cancel && choice == -6)   OpenSettingsMenu(client);
+    else if (action == MenuAction_Cancel && choice == -6)   OpenMenuSettings(client);
     else if (action == MenuAction_End)                      menu.Close();
 }
 
 // ******************************************************************************************************************
 // ************************************************** ADD MAP MENU **************************************************
 // ******************************************************************************************************************
-public void OpenMapsAddMenu(int client)
+public void OpenMenuMapsAdd(int client)
 {
-    Menu menu = new Menu(MapsAddMenuHandler);
+    Menu menu = new Menu(MenuHandlerMapsAdd);
 
     char langString[128], langString1[64], langString2[64], langString3[64], langString4[64];
     Format(langString1, sizeof(langString1), "%T", "Admin", client);
@@ -402,7 +386,7 @@ public void OpenMapsAddMenu(int client)
     menu.Display(client, MENU_TIME_FOREVER);
 }
 
-public int MapsAddMenuHandler(Menu menu, MenuAction action, int client, int choice)
+public int MenuHandlerMapsAdd(Menu menu, MenuAction action, int client, int choice)
 {
     if (action == MenuAction_Select)
     {
@@ -418,22 +402,22 @@ public int MapsAddMenuHandler(Menu menu, MenuAction action, int client, int choi
             PrintToChat(client, "[Soccer Mod]\x04 %t", "$map added to the allowed maps list", map);
         }
 
-        OpenMapsMenu(client);
+        OpenMenuMaps(client);
     }
-    else if (action == MenuAction_Cancel && choice == -6)   OpenMapsMenu(client);
+    else if (action == MenuAction_Cancel && choice == -6)   OpenMenuMaps(client);
     else if (action == MenuAction_End)                      menu.Close();
 }
 
 // *********************************************************************************************************************
 // ************************************************** CHANGE MAP MENU **************************************************
 // *********************************************************************************************************************
-public void OpenMapsChangeMenu(int client)
+public void OpenMenuMapsChange(int client)
 {
     File file = OpenFile(allowedMapsConfigFile, "r");
 
     if (file != null)
     {
-        Menu menu = new Menu(MapsChangeMenuHandler);
+        Menu menu = new Menu(MenuHandlerMapsChange);
 
         char langString[128], langString1[64], langString2[64], langString3[64], langString4[64];
         Format(langString1, sizeof(langString1), "%T", "Admin", client);
@@ -461,11 +445,11 @@ public void OpenMapsChangeMenu(int client)
     else
     {
         PrintToChat(client, "[Soccer Mod]\x04 %t", "Allowed maps list is empty");
-        OpenMapsMenu(client);
+        OpenMenuMaps(client);
     }
 }
 
-public int MapsChangeMenuHandler(Menu menu, MenuAction action, int client, int choice)
+public int MenuHandlerMapsChange(Menu menu, MenuAction action, int client, int choice)
 {
     if (action == MenuAction_Select)
     {
@@ -488,20 +472,20 @@ public int MapsChangeMenuHandler(Menu menu, MenuAction action, int client, int c
         GetClientAuthId(client, AuthId_Engine, steamid, sizeof(steamid));
         LogMessage("%N <%s> has changed the map to %s", client, steamid, map);
     }
-    else if (action == MenuAction_Cancel && choice == -6)   OpenMapsMenu(client);
+    else if (action == MenuAction_Cancel && choice == -6)   OpenMenuMaps(client);
     else if (action == MenuAction_End)                      menu.Close();
 }
 
 // *********************************************************************************************************************
 // ************************************************** REMOVE MAP MENU **************************************************
 // *********************************************************************************************************************
-public void OpenMapsRemoveMenu(int client)
+public void OpenMenuMapsRemove(int client)
 {
     File file = OpenFile(allowedMapsConfigFile, "r");
 
     if (file != null)
     {
-        Menu menu = new Menu(MapsRemoveMenuHandler);
+        Menu menu = new Menu(MenuHandlerMapsRemove);
 
         char langString[128], langString1[64], langString2[64], langString3[64], langString4[64];
         Format(langString1, sizeof(langString1), "%T", "Admin", client);
@@ -529,11 +513,11 @@ public void OpenMapsRemoveMenu(int client)
     else
     {
         PrintToChat(client, "[Soccer Mod]\x04 %t", "Allowed maps list is empty");
-        OpenMapsMenu(client);
+        OpenMenuMaps(client);
     }
 }
 
-public int MapsRemoveMenuHandler(Menu menu, MenuAction action, int client, int choice)
+public int MenuHandlerMapsRemove(Menu menu, MenuAction action, int client, int choice)
 {
     if (action == MenuAction_Select)
     {
@@ -551,18 +535,18 @@ public int MapsRemoveMenuHandler(Menu menu, MenuAction action, int client, int c
         }
         else PrintToChat(client, "[Soccer Mod]\x04 %t", "$map is already removed from the allowed maps list", map);
 
-        OpenMapsMenu(client);
+        OpenMenuMaps(client);
     }
-    else if (action == MenuAction_Cancel && choice == -6)   OpenMapsMenu(client);
+    else if (action == MenuAction_Cancel && choice == -6)   OpenMenuMaps(client);
     else if (action == MenuAction_End)                      menu.Close();
 }
 
 // ***************************************************************************************************************
 // ************************************************** HELP MENU **************************************************
 // ***************************************************************************************************************
-public void OpenHelpMenu(int client)
+public void OpenMenuHelp(int client)
 {
-    Menu menu = new Menu(HelpMenuHandler);
+    Menu menu = new Menu(MenuHandlerHelp);
 
     char langString[64];
     Format(langString, sizeof(langString), "Soccer Mod - %T", "Help", client);
@@ -581,28 +565,28 @@ public void OpenHelpMenu(int client)
     menu.Display(client, MENU_TIME_FOREVER);
 }
 
-public int HelpMenuHandler(Menu menu, MenuAction action, int client, int choice)
+public int MenuHandlerHelp(Menu menu, MenuAction action, int client, int choice)
 {
     if (action == MenuAction_Select)
     {
         char menuItem[32];
         menu.GetItem(choice, menuItem, sizeof(menuItem));
 
-        if (StrEqual(menuItem, "commands"))                 OpenChatCommandsMenu(client);
-        else if (StrEqual(menuItem, "sprint"))              OpenHelpMenu(client);
+        if (StrEqual(menuItem, "commands"))                 OpenMenuCommands(client);
+        else if (StrEqual(menuItem, "sprint"))              OpenMenuHelp(client);
         else if (StrEqual(menuItem, "guide"))
         {
             PrintToChat(client, "%s http://steamcommunity.com/sharedfiles/filedetails/?id=267151106", PREFIX);
-            OpenHelpMenu(client);
+            OpenMenuHelp(client);
         }
     }
-    else if (action == MenuAction_Cancel && choice == -6)   OpenSoccerMenu(client);
+    else if (action == MenuAction_Cancel && choice == -6)   OpenMenuSoccer(client);
     else if (action == MenuAction_End)                      menu.Close();
 }
 
-public void OpenChatCommandsMenu(int client)
+public void OpenMenuCommands(int client)
 {
-    Menu menu = new Menu(ChatCommandsMenuHandler);
+    Menu menu = new Menu(MenuHandlerCommands);
 
     char langString[64], langString1[64], langString2[64];
     Format(langString1, sizeof(langString1), "%T", "Help", client);
@@ -628,7 +612,7 @@ public void OpenChatCommandsMenu(int client)
     menu.Display(client, MENU_TIME_FOREVER);
 }
 
-public int ChatCommandsMenuHandler(Menu menu, MenuAction action, int client, int choice)
+public int MenuHandlerCommands(Menu menu, MenuAction action, int client, int choice)
 {
     if (action == MenuAction_Select)
     {
@@ -649,18 +633,18 @@ public int ChatCommandsMenuHandler(Menu menu, MenuAction action, int client, int
         else if (StrEqual(menuItem, "commands"))    PrintToChat(client, "[Soccer Mod]\x04 %t", "Opens the Soccer Mod commands menu");
         else if (StrEqual(menuItem, "credits"))     PrintToChat(client, "[Soccer Mod]\x04 %t", "Opens the Soccer Mod credits menu");
 
-        OpenChatCommandsMenu(client);
+        OpenMenuCommands(client);
     }
-    else if (action == MenuAction_Cancel && choice == -6)   OpenHelpMenu(client);
+    else if (action == MenuAction_Cancel && choice == -6)   OpenMenuHelp(client);
     else if (action == MenuAction_End)                      menu.Close();
 }
 
 // ******************************************************************************************************************
 // ************************************************** CREDITS MENU **************************************************
 // ******************************************************************************************************************
-public void OpenCreditsMenu(int client)
+public void OpenMenuCredits(int client)
 {
-    Menu menu = new Menu(CreditsMenuHandler);
+    Menu menu = new Menu(MenuHandlerCredits);
 
     char langString[64];
     Format(langString, sizeof(langString), "Soccer Mod - %T", "Credits", client);
@@ -682,7 +666,7 @@ public void OpenCreditsMenu(int client)
     menu.Display(client, MENU_TIME_FOREVER);
 }
 
-public int CreditsMenuHandler(Menu menu, MenuAction action, int client, int choice)
+public int MenuHandlerCredits(Menu menu, MenuAction action, int client, int choice)
 {
     if (action == MenuAction_Select)
     {
@@ -693,8 +677,8 @@ public int CreditsMenuHandler(Menu menu, MenuAction action, int client, int choi
         else if (StrEqual(menuItem, "arctic"))  PrintToChat(client, "%s http://steamcommunity.com/id/quixomatic/", PREFIX);
         else if (StrEqual(menuItem, "group"))   PrintToChat(client, "%s http://steamcommunity.com/groups/soccer_mod", PREFIX);
 
-        OpenCreditsMenu(client);
+        OpenMenuCredits(client);
     }
-    else if (action == MenuAction_Cancel && choice == -6)   OpenSoccerMenu(client);
+    else if (action == MenuAction_Cancel && choice == -6)   OpenMenuSoccer(client);
     else if (action == MenuAction_End)                      menu.Close();
 }

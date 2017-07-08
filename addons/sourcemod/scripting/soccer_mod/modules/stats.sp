@@ -754,7 +754,7 @@ public int StatisticsMenuHandler(Menu menu, MenuAction action, int client, int c
         else if (StrEqual(menuItem, "round"))               OpenRoundStatisticsMenu(client);
         else if (StrEqual(menuItem, "map"))                 OpenMapStatisticsMenu(client);
     }
-    else if (action == MenuAction_Cancel && choice == -6)   OpenSoccerMenu(client);
+    else if (action == MenuAction_Cancel && choice == -6)   OpenMenuSoccer(client);
     else if (action == MenuAction_End)                      menu.Close();
 }
 

@@ -102,6 +102,9 @@ public void MatchEventRoundStart(Event event)
     if (index == -1) {
         index = GetEntityIndexByName("ball", "func_physbox");
     }
+    if (index == -1) {
+        index = GetEntityIndexByName("ballon", "func_physbox");
+    }
     if (index != -1) GetEntPropVector(index, Prop_Send, "m_vecOrigin", matchBallStartPosition);
 }
 
@@ -204,7 +207,7 @@ public int MatchMenuHandler(Menu menu, MenuAction action, int client, int choice
         }
         else if (StrEqual(menuItem, "score"))               OpenMatchScoreMenu(client);
     }
-    else if (action == MenuAction_Cancel && choice == -6)   OpenAdminMenu(client);
+    else if (action == MenuAction_Cancel && choice == -6)   OpenMenuAdmin(client);
     else if (action == MenuAction_End)                      menu.Close();
 }
 

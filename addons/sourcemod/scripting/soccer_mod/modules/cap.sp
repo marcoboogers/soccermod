@@ -97,7 +97,7 @@ public int CapMenuHandler(Menu menu, MenuAction action, int client, int choice)
 
         OpenCapMenu(client);
     }
-    else if (action == MenuAction_Cancel && choice == -6)   OpenAdminMenu(client);
+    else if (action == MenuAction_Cancel && choice == -6)   OpenMenuAdmin(client);
     else if (action == MenuAction_End)                      menu.Close();
 }
 
@@ -283,7 +283,7 @@ public int CapPositionMenuHandler(Menu menu, MenuAction action, int client, int 
 
         OpenCapPositionMenu(client);
     }
-    else if (action == MenuAction_Cancel && choice == -6)   OpenSoccerMenu(client);
+    else if (action == MenuAction_Cancel && choice == -6)   OpenMenuSoccer(client);
     else if (action == MenuAction_End)                      menu.Close();
 }
 

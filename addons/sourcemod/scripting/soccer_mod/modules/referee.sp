@@ -64,7 +64,7 @@ public int RefereeMenuHandler(Menu menu, MenuAction action, int client, int choi
         else if (StrEqual(menuItem, "remove_red"))          OpenRemoveRedCardMenu(client);
         else if (StrEqual(menuItem, "remove_all"))          RemoveAllCards(client);
     }
-    else if (action == MenuAction_Cancel && choice == -6)   OpenAdminMenu(client);
+    else if (action == MenuAction_Cancel && choice == -6)   OpenMenuAdmin(client);
     else if (action == MenuAction_End)                      menu.Close();
 }
 

@@ -113,7 +113,7 @@ public Action ServerCommands(int args)
     else if (StrEqual(serverCommand, "soccer_mod_pushscale"))
     {
         int value = StringToInt(cmdArg1);
-        SetCvar("phys_pushscale", value);
+        SetCvarInt("phys_pushscale", value);
 
         phys_pushscale = value;
         PrintToServer("%s Pushscale set to %i", PREFIX, value);

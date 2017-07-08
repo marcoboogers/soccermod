@@ -1,15 +1,15 @@
-#define PLUGIN_VERSION "2017.4.24"
+#define PLUGIN_VERSION "2017.5.5"
 #define PREFIX "[Soccer Mod]\x04"
 
-bool capFightStarted        = false;
-bool currentMapAllowed      = false;
-bool goalScored             = false;
-bool matchStarted           = false;
-bool roundEnded             = false;
-char game[8]                = "csgo";
-float gameTickRate          = 64.0;
-Handle allowedMaps          = INVALID_HANDLE;
-Handle db                   = INVALID_HANDLE;
+bool capFightStarted    = false;
+bool currentMapAllowed  = false;
+bool goalScored         = false;
+bool matchStarted       = false;
+bool roundEnded         = false;
+char game[8]            = "csgo";
+float gameTickRate      = 64.0;
+Handle allowedMaps      = INVALID_HANDLE;
+Handle db               = INVALID_HANDLE;
 
 char allowedMapsConfigFile[PLATFORM_MAX_PATH];
 char changeSetting[MAXPLAYERS + 1][32];
@@ -85,8 +85,8 @@ public void OnPluginStart()
 
     ConnectToDatabase();
     LoadAllowedMaps();
-    LoadConfigPublic();
     LoadConfigSoccer();
+    LoadConfigPublic();
     RegisterClientCommands();
     RegisterServerCommands();
 
@@ -454,65 +454,73 @@ public void LoadConfigSoccer()
 {
     if (StrEqual(game, "csgo"))
     {
-        SetCvar("cs_enable_player_physics_box",     1);
-        SetCvar("mp_do_warmup_period",              0);
-        SetCvar("mp_halftime",                      0);
-        SetCvar("mp_playercashawards",              0);
-        SetCvar("mp_solid_teammates",               1);
-        SetCvar("mp_teamcashawards",                0);
-        SetCvar("weapon_reticle_knife_show",        1);
+        SetCvarInt("cs_enable_player_physics_box",     1);
+        SetCvarInt("mp_do_warmup_period",              0);
+        SetCvarInt("mp_halftime",                      0);
+        SetCvarInt("mp_playercashawards",              0);
+        SetCvarInt("mp_solid_teammates",               1);
+        SetCvarInt("mp_teamcashawards",                0);
+        SetCvarInt("weapon_reticle_knife_show",        1);
     }
 
-    SetCvar("mp_freezetime",                0);
-    SetCvar("mp_roundtime",                 60);
-    SetCvar("phys_pushscale",               phys_pushscale);
-    SetCvarFloat("phys_timescale",          phys_timescale);
-    SetCvar("sv_client_min_interp_ratio",   0);
-    SetCvar("sv_client_max_interp_ratio",   0);
+    SetCvarInt("mp_freezetime",                 0);
+    SetCvarInt("mp_roundtime",                  60);
+    SetCvarInt("phys_pushscale",                phys_pushscale);
+    SetCvarFloat("phys_timescale",              phys_timescale);
+    SetCvarInt("sv_client_min_interp_ratio",    0);
+    SetCvarInt("sv_client_max_interp_ratio",    0);
+
+    ServerCommand("exec soccer");
 }
 
 public void LoadConfigNonSoccer()
 {
     if (StrEqual(game, "csgo"))
     {
-        SetCvar("cs_enable_player_physics_box",     0);
-        SetCvar("mp_do_warmup_period",              1);
-        SetCvar("mp_halftime",                      1);
-        SetCvar("mp_playercashawards",              1);
-        SetCvar("mp_solid_teammates",               1);
-        SetCvar("mp_teamcashawards",                1);
-        SetCvar("weapon_reticle_knife_show",        1);
+        SetCvarInt("cs_enable_player_physics_box",     0);
+        SetCvarInt("mp_do_warmup_period",              1);
+        SetCvarInt("mp_halftime",                      1);
+        SetCvarInt("mp_playercashawards",              1);
+        SetCvarInt("mp_solid_teammates",               1);
+        SetCvarInt("mp_teamcashawards",                1);
+        SetCvarInt("weapon_reticle_knife_show",        1);
     }
 
-    SetCvar("mp_freezetime",                5);
-    SetCvar("mp_roundtime",                 3);
-    SetCvar("phys_pushscale",               1);
-    SetCvarFloat("phys_timescale",          1.0);
-    SetCvar("sv_client_min_interp_ratio",   -1);
-    SetCvar("sv_client_max_interp_ratio",   1);
+    SetCvarInt("mp_freezetime",                 5);
+    SetCvarInt("mp_roundtime",                  3);
+    SetCvarInt("phys_pushscale",                1);
+    SetCvarFloat("phys_timescale",              1.0);
+    SetCvarInt("sv_client_min_interp_ratio",    -1);
+    SetCvarInt("sv_client_max_interp_ratio",    1);
+
+    ServerCommand("exec non_soccer");
 }
 
 public void LoadConfigPublic()
 {
     if (StrEqual(game, "csgo"))
     {
-        SetCvar("mp_match_can_clinch", 1);
+        SetCvarInt("mp_match_can_clinch", 1);
     }
 
-    SetCvar("mp_maxrounds", 19);
+    SetCvarInt("mp_maxrounds", 19);
+
+    ServerCommand("exec soccer_public");
 }
 
 public void LoadConfigMatch()
 {
     if (StrEqual(game, "csgo"))
     {
-        SetCvar("mp_match_can_clinch", 0);
+        SetCvarInt("mp_match_can_clinch", 0);
     }
 
-    SetCvar("mp_maxrounds", 99);
+    SetCvarInt("mp_maxrounds", 99);
+
+    ServerCommand("exec soccer_match");
 }
 
-public void SetCvar(char[] cvarName, int value)
+public void SetCvarInt(char[] cvarName, int value)
 {
     Handle cvar;
     cvar = FindConVar(cvarName);
@@ -597,7 +605,7 @@ public void AddDirToDownloads(char path[PLATFORM_MAX_PATH])
 public void FreezeAll()
 {
     SetCvarFloat("phys_timescale", 0.0);
-    SetCvar("phys_pushscale", 1);
+    SetCvarInt("phys_pushscale", 1);
 
     for (int client = 1; client <= MaxClients; client++)
     {
@@ -608,7 +616,7 @@ public void FreezeAll()
 public void UnfreezeAll()
 {
     SetCvarFloat("phys_timescale", phys_timescale);
-    SetCvar("phys_pushscale", phys_pushscale);
+    SetCvarInt("phys_pushscale", phys_pushscale);
 
     for (int client = 1; client <= MaxClients; client++)
     {

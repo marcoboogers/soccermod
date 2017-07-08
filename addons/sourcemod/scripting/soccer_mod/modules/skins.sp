@@ -132,7 +132,7 @@ public int SkinsMenuHandler(Menu menu, MenuAction action, int client, int choice
 
         OpenSkinsSelectionMenu(client, menuItem);
     }
-    else if (action == MenuAction_Cancel && choice == -6)   OpenSettingsMenu(client);
+    else if (action == MenuAction_Cancel && choice == -6)   OpenMenuSettings(client);
     else if (action == MenuAction_End)                      menu.Close();
 }
 

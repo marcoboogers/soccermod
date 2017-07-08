@@ -85,7 +85,7 @@ public int RankingMenuHandler(Menu menu, MenuAction action, int client, int choi
         else if (StrEqual(menuItem, "public_personal"))     OpenRankingPersonalMenu(client, "public");
         else if (StrEqual(menuItem, "last_connected"))      OpenRankingLastConnectedMenu(client);
     }
-    else if (action == MenuAction_Cancel && choice == -6)   OpenSoccerMenu(client);
+    else if (action == MenuAction_Cancel && choice == -6)   OpenMenuSoccer(client);
     else if (action == MenuAction_End)                      menu.Close();
 }
 

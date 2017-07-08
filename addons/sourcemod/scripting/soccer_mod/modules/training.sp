@@ -145,7 +145,7 @@ public int TrainingMenuHandler(Menu menu, MenuAction action, int client, int cho
             OpenTrainingMenu(client);
         }
     }
-    else if (action == MenuAction_Cancel && choice == -6)   OpenAdminMenu(client);
+    else if (action == MenuAction_Cancel && choice == -6)   OpenMenuAdmin(client);
     else if (action == MenuAction_End)                      menu.Close();
 }
 
