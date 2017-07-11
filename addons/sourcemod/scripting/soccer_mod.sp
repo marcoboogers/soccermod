@@ -470,7 +470,7 @@ public void LoadConfigSoccer()
     SetCvarInt("sv_client_min_interp_ratio",    0);
     SetCvarInt("sv_client_max_interp_ratio",    0);
 
-    ServerCommand("exec soccer");
+    if (FileExists("cfg/soccer.cfg", false)) ServerCommand("exec soccer");
 }
 
 public void LoadConfigNonSoccer()
@@ -493,7 +493,7 @@ public void LoadConfigNonSoccer()
     SetCvarInt("sv_client_min_interp_ratio",    -1);
     SetCvarInt("sv_client_max_interp_ratio",    1);
 
-    ServerCommand("exec non_soccer");
+    if (FileExists("cfg/non_soccer.cfg", false)) ServerCommand("exec non_soccer");
 }
 
 public void LoadConfigPublic()
@@ -505,7 +505,7 @@ public void LoadConfigPublic()
 
     SetCvarInt("mp_maxrounds", 19);
 
-    ServerCommand("exec soccer_public");
+    if (FileExists("cfg/soccer_public.cfg", false)) ServerCommand("exec soccer_public");
 }
 
 public void LoadConfigMatch()
@@ -517,7 +517,7 @@ public void LoadConfigMatch()
 
     SetCvarInt("mp_maxrounds", 99);
 
-    ServerCommand("exec soccer_match");
+    if (FileExists("cfg/soccer_match.cfg", false)) ServerCommand("exec soccer_match");
 }
 
 public void SetCvarInt(char[] cvarName, int value)
